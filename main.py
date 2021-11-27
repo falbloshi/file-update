@@ -39,21 +39,22 @@ def src_get():
         args.print_help()
         exit()
     return src_full_path, src_base_name
-
 SRC, BASE = src_get()
+
 is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
 
-
-#removing non directory listing to process reachable and unreachable paths
-def dirs_remove():
-    dirs = [dirs for dirs in args.dirs if os.path.isdir(dirs) and os.access(dirs, os.R_OK) and not is_same_dirs_as_src(dirs)]
-
-    if args.path and os.path.isfile(args.source):
+if args.path and os.path.isfile(args.source):
         print(f"the fullpath name of {BASE} is {SRC}")
 
-    num = 0
+#removing non directory listing to process reachable and unreachable paths
+def dirs_filter():
+    
+    dirs = [dirs for dirs in args.dirs if os.path.isdir(dirs)\
+            and os.access(dirs, os.R_OK)\
+            and not is_same_dirs_as_src(dirs)]
+  
     if args.verbose:
-        num += 1
+        num = 1
         for item in list(set(args.dirs)-set(dirs)):
             if is_same_dirs_as_src(item): 
                 print(f"{num} - \"{item}\" removed - cannot copy to the same directory as the source file")
@@ -63,20 +64,20 @@ def dirs_remove():
                 print(f"{num} - \"{item}\" removed - could be missing file mount or invalid directory")
             else: 
                 print(f"{num} - \"{item}\" removed - not a directory")
-            
+            num += 1
     elif args.quiet: pass
     else: 
-        if num: print("Invalid directories removed")
+        if args.dirs != dirs: print("Invalid directories removed")
 
     return dirs
-
+DIRS_FILTERED = dirs_filter()
 
 #copy file to specified folders
 def src_copy():
-    dirs = dirs_remove()
+    dirs = DIRS_FILTERED
     if not args.simulate:
         for directory in dirs:
-            shutil.copy2(SRC, os.path.normpath(dirs))
+            shutil.copy2(SRC, os.path.normpath(directory))
 
     if args.verbose:
         print(f"\nCopying {BASE} in ")
@@ -88,21 +89,15 @@ def src_copy():
     else: print(f"File {BASE}, Copied Sucessfuly")
     return dirs
 
-
-src_copy()
-
-
-    
-
 ### Json ###
 import json
 
-#returns source_history.json if exists,
-def src_jfile_exists():
+#returns source_history.json if exists, else creates new one
+def src_jfile_get():
     #stackoverflow.com/a/35249327
+    
     src_hist_dir = os.path.expanduser("~") + "/.config/fupdate"
     src_hist_file = src_hist_dir + "/source_history.json"
-
     try:
         with open(src_hist_file, 'r', encoding='utf-8') as j_file:	
             source_history = json.load(j_file)
@@ -118,5 +113,32 @@ def src_jfile_exists():
             
         with open(src_hist_file, 'x+', encoding='utf-8') as j_file:
             empty = {}
-            json.dump(empty, j_file, indent=2)
-            pass
+            json.dump(empty, j_file, indent = 4)
+            return src_jfile_get()
+            
+
+import hashlib
+def dirs_file_hash(file):
+    with open(file, 'b') as file:
+        
+
+
+
+            
+#if src does not exist in source_history.json, 
+#try to create new src and dir list and add to the json file
+def src_create():
+    dirs = DIRS_FILTERED
+    for dir_item in dirs:
+        
+        
+    source_file  = src_jfile_get()
+    source_file.update(SRC=[])
+    
+
+    pass
+
+#if src exists in source_history.json, 
+#try to update existing folders and or add new ones if added through -a flag
+def src_update(src):
+    pass
