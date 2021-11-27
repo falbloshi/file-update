@@ -117,19 +117,21 @@ def src_jfile_get():
             return src_jfile_get()
             
 
-import hashlib
+
+from hashlib import sha1
 def dirs_file_hash(file):
-    with open(file, 'b') as file:
-        
+    with open(file, 'rb') as file:
+        to_hash = file.read()
+        return sha1(to_hash).hexdigest
 
-
-
-            
 #if src does not exist in source_history.json, 
 #try to create new src and dir list and add to the json file
 def src_create():
     dirs = DIRS_FILTERED
-    for dir_item in dirs:
+    for dir_path in dirs:
+        file_path = os.path.join(dir_path, SRC)
+        if os.path.isfile(file_path):
+            file_hash = dirs_file_hash(file_path)
         
         
     source_file  = src_jfile_get()
