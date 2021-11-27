@@ -1,4 +1,3 @@
-from posixpath import BASEname
 import shutil
 import os
 import argparse
@@ -31,61 +30,93 @@ def command_parser():
 args = command_parser()
 
 #checks if source is a file in current working directory or an absolute path
-def get_source():
+def src_get():
     if os.path.isfile(args.source): 
-        fullPathSrc = os.path.realpath(args.source)
-        baseNameSrc = os.path.basename(args.source)
+        src_full_path = os.path.realpath(args.source)
+        src_base_name = os.path.basename(args.source)
     else: 
         print(f"{args.source} is not a valid file")
         args.print_help()
         exit()
-    return fullPathSrc, baseNameSrc
+    return src_full_path, src_base_name
 
-SRC, BASE = get_source()
+SRC, BASE = src_get()
 is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
 
 
 #removing non directory listing to process reachable and unreachable paths
-def dirs_remove_unwanted():
+def dirs_remove():
     dirs = [dirs for dirs in args.dirs if os.path.isdir(dirs) and os.access(dirs, os.R_OK) and not is_same_dirs_as_src(dirs)]
 
     if args.path and os.path.isfile(args.source):
         print(f"the fullpath name of {BASE} is {SRC}")
 
+    num = 0
     if args.verbose:
-        num = 1
+        num += 1
         for item in list(set(args.dirs)-set(dirs)):
             if is_same_dirs_as_src(item): 
                 print(f"{num} - \"{item}\" removed - cannot copy to the same directory as the source file")
             elif os.path.isdir(item): 
-                print(f"{num} - \"{item}\" removed - could be missing file mount or file access")
+                print(f"{num} - \"{item}\" removed - could be missing file mount or user access")
             elif os.path.isabs(item): 
                 print(f"{num} - \"{item}\" removed - could be missing file mount or invalid directory")
             else: 
                 print(f"{num} - \"{item}\" removed - not a directory")
-            num += 1
+            
     elif args.quiet: pass
-    else: print("Invalid dirs removed")
+    else: 
+        if num: print("Invalid directories removed")
 
     return dirs
 
 
-def src_copy_to_dirs():
-    directories = dirs_remove_unwanted()
+#copy file to specified folders
+def src_copy():
+    dirs = dirs_remove()
     if not args.simulate:
-        for directory in directories:
-            shutil.copy2(SRC, os.path.normpath(directory))
+        for directory in dirs:
+            shutil.copy2(SRC, os.path.normpath(dirs))
 
     if args.verbose:
         print(f"\nCopying {BASE} in ")
         num = 1
-        for item in directories:
+        for item in dirs:
             print(f"{num} - {os.path.normpath(item)}")
             num += 1
     elif args.quiet: pass
     else: print(f"File {BASE}, Copied Sucessfuly")
-    return directories
+    return dirs
 
 
-src_copy_to_dirs()
+src_copy()
 
+
+    
+
+### Json ###
+import json
+
+#returns source_history.json if exists,
+def src_jfile_exists():
+    #stackoverflow.com/a/35249327
+    src_hist_dir = os.path.expanduser("~") + "/.config/fupdate"
+    src_hist_file = src_hist_dir + "/source_history.json"
+
+    try:
+        with open(src_hist_file, 'r', encoding='utf-8') as j_file:	
+            source_history = json.load(j_file)
+            return source_history
+		
+    except FileNotFoundError: 
+        #stackoverflow.com/a/35249327
+        if not os.path.isfile(src_hist_file):
+            os.makedirs(src_hist_dir, exist_ok=True)
+        
+        if not args.quiet:
+            print(f'History file did not exist. Creating source_history.json in {src_hist_dir}')
+            
+        with open(src_hist_file, 'x+', encoding='utf-8') as j_file:
+            empty = {}
+            json.dump(empty, j_file, indent=2)
+            pass
