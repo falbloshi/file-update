@@ -38,6 +38,7 @@ def src_get():
         print(f"{args.source} is not a valid file")
         args.print_help()
         exit()
+    
     return src_full_path, src_base_name
 SRC, BASE = src_get()
 
@@ -55,6 +56,7 @@ def dirs_filter():
   
     if args.verbose:
         num = 1
+        
         for item in list(set(args.dirs)-set(dirs)):
             if is_same_dirs_as_src(item): 
                 print(f"{num} - \"{item}\" removed - cannot copy to the same directory as the source file")
@@ -74,20 +76,20 @@ DIRS_FILTERED = dirs_filter()
 
 #copy file to specified folders
 def src_copy():
-    dirs = DIRS_FILTERED
     if not args.simulate:
-        for directory in dirs:
+        for directory in DIRS_FILTERED:
             shutil.copy2(SRC, os.path.normpath(directory))
 
     if args.verbose:
         print(f"\nCopying {BASE} in ")
         num = 1
-        for item in dirs:
+        for item in DIRS_FILTERED:
             print(f"{num} - {os.path.normpath(item)}")
             num += 1
     elif args.quiet: pass
     else: print(f"File {BASE}, Copied Sucessfuly")
-    return dirs
+    
+    return DIRS_FILTERED
 
 ### Json ###
 import json
@@ -95,8 +97,7 @@ import json
 #returns source_history.json if exists, else creates new one
 def src_jfile_get():
     #stackoverflow.com/a/35249327
-    
-    src_hist_dir = os.path.expanduser("~") + "/.config/fupdate"
+    src_hist_dir = os.path.expanduser("~") + ".config/fupdate"
     src_hist_file = src_hist_dir + "/source_history.json"
     try:
         with open(src_hist_file, 'r', encoding='utf-8') as j_file:	
@@ -121,23 +122,20 @@ def src_jfile_get():
 from hashlib import sha1
 def dirs_file_hash(file):
     with open(file, 'rb') as file:
-        to_hash = file.read()
-        return sha1(to_hash).hexdigest
+        return sha1(file.read()).hexdigest
 
 #if src does not exist in source_history.json, 
 #try to create new src and dir list and add to the json file
 def src_create():
-    dirs = DIRS_FILTERED
-    for dir_path in dirs:
+    source_file  = src_jfile_get()
+   
+    for dir_path in DIRS_FILTERED:
         file_path = os.path.join(dir_path, SRC)
+        
         if os.path.isfile(file_path):
             file_hash = dirs_file_hash(file_path)
         
-        
-    source_file  = src_jfile_get()
-    source_file.update(SRC=[])
-    
-
+    source_file.update(SRC=[file_hash, ])  
     pass
 
 #if src exists in source_history.json, 
