@@ -52,7 +52,7 @@ SRC, BASE = src_get()
 
 is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
 is_dir_exist_a_accessible = lambda dirs: os.path.isdir(dirs) and os.access(dirs, os.R_OK)
-list_item_common_remove = lambda list_a, list_b: list(set(list_a) - set(list_b))
+list_item_common_remove = lambda list_a, list_b: list(set(list_a).difference(set(list_b)))
 file_dir_name = lambda file: os.path.dirname(file)
 
 #removing non directory listing to process reachable and unreachable paths
@@ -82,7 +82,7 @@ def dirs_filter(directory):
 DIRS_FILTERED = dirs_filter(args.add)
 
 def dirs_existing_filter(directory, new_directory_list=[]):
-    #assuming they are keys in history file 
+    #assuming they are keys in cache file 
     directory = [os.path.dirname(dirs) for dirs in directory]
 
     filtered_directory = [dirs for dirs in directory \
@@ -190,6 +190,7 @@ def src_update():
                 print(f"You did not specify directories or there are empty directories in the records") 
                 args.print_help()                                                            
             exit()
+    
     return cache_file
 
 #remove source file from the history file
@@ -207,10 +208,8 @@ def dirs_remove():
     if IS_SRC_IN_CACHE:
         cache_file = CACHE_FILE
         dirs_to_remove = list_item_common_remove(DIRS_REMOVABLE, DIRS_FILTERED)
-
         dirs_existing = list(map(file_dir_name , cache_file[SRC].getkeys()))
-
-        dirs_to_remove = list(set(dirs_to_remove) or set(dirs_existing))
+        dirs_to_remove = list(set(dirs_to_remove).intersection(set(dirs_existing)))
 
         for dir_path in dirs_to_remove:
             removed_file_path = os.path.join(dir_path, SRC)
@@ -222,4 +221,7 @@ def dirs_remove():
             exit()
         else: exit()
     return cache_file
+
+#Checks for status of files, perform no changes
+def dirs_status():
 
