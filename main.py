@@ -3,19 +3,20 @@ import os
 import argparse
 
 DIRS_FILTERED = []
+DIRS_REMOVABLE = []
 
 def command_parser():
     parser = argparse.ArgumentParser(
             description = 'Updates multiple copies of a file(SRC) residing in different directories(DIRS)')
 
     parser.add_argument("source", type=str, metavar="SRC",
-                        help="the original file")
+                        help="SRC, the origin source file to be copied")
 
     parser.add_argument("-a", "--add", metavar="DIRS", type=str, nargs='+',
-                        help="adds directories to an existing source file")
+                        help="adds directories to copy an existing SRC file")
 
     parser.add_argument("-u", "--update", action="store_true",
-                        help="update existing source file")
+                        help="update existing SRC file")
 
     parser.add_argument("-s", "--simulate", action="store_true",
                         help="simulate copy process, don't perform real changes")
@@ -23,11 +24,17 @@ def command_parser():
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="display no output")
 
+    parser.add_argument("-d", "--delete", metavar="SRC", action="store_true",
+                        help="deletes an origin file(SRC) from history, will not delete the real file")
+    
+    parser.add_argument("-r", "--remove", metavar="DIRS", action="store_true", type=str, nargs='+',
+                        help="removes a copy's directory(DIRS) from history from the specified SRC, will not delete the real directory")                   
+
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="display more information in output")
 
-    args = parser.parse_args()
-    return args
+
+    return parser.parse_args()
 args = command_parser()
 
 #checks if source is a file in current working directory or an absolute path
@@ -45,19 +52,21 @@ SRC, BASE = src_get()
 
 is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
 is_dir_exist_a_accessible = lambda dirs: os.path.isdir(dirs) and os.access(dirs, os.R_OK)
+list_item_common_remove = lambda list_a, list_b: list(set(list_a) - set(list_b))
+file_dir_name = lambda file: os.path.dirname(file)
 
 #removing non directory listing to process reachable and unreachable paths
-def dirs_filter():
-    dirs = set([dirs for dirs in args.add \
+def dirs_filter(directory):
+    dirs = set([dirs for dirs in directory \
             if is_dir_exist_a_accessible(dirs)
             and not is_same_dirs_as_src(dirs)])
   
     if args.verbose:
         num = 1
         
-        for item in list(set(args.add)-dirs):
+        for item in list_item_common_remove(set(directory), dirs):
             if is_same_dirs_as_src(item): 
-                print(f"{num} - \"{item}\" removed - cannot copy to the same directory as the source file")
+                print(f"{num} - \"{item}\" removed - no action to the same directory as the source file")
             elif os.path.isdir(item): 
                 print(f"{num} - \"{item}\" removed - could be missing file mount or user access")
             elif os.path.isabs(item): 
@@ -67,10 +76,10 @@ def dirs_filter():
             num += 1
     elif args.quiet: pass
     else: 
-        if args.add != dirs: print("Invalid directories removed")
+        if directory != dirs: print("Invalid directories removed")
 
     return list(dirs)
-DIRS_FILTERED = dirs_filter()
+DIRS_FILTERED = dirs_filter(args.add)
 
 def dirs_existing_filter(directory, new_directory_list=[]):
     #assuming they are keys in history file 
@@ -131,9 +140,10 @@ def src_history_jfile_get():
         with open(src_hist_file, 'x+', encoding='utf-8') as j_file:
             empty = {}
             json.dump(empty, j_file, indent = 4)
+            
             return src_history_jfile_get()
-
-
+CACHE_FILE  = src_history_jfile_get()
+IS_SRC_IN_CACHE = SRC in CACHE_FILE 
 
 #uses the src hash and copy time to the destinion copies 
 #for future integrity or update check
@@ -143,37 +153,73 @@ def src_file_hash_a_time(file):
     with open(file, 'rb') as file:
         return sha1(file.read()).hexdigest(), ctime(os.path.getctime(SRC))
 
-#checks if a source file entry is in history file
-def src_exists():
-    history_file  = src_history_jfile_get()
-    src_nin_jfile = SRC not in history_file
-
-    return  history_file, src_nin_jfile
-
 #if src does not exist in source_history.json, 
 #try to create new src and dir list and add to the json file
 #if src exists in source_history.json, 
 #try to update existing folders and or add new ones if added through -a flag
 def src_update():
-    history_file, src_nin_jfile  = src_exists()
     file_hash, file_time = src_file_hash_a_time(SRC)
+    cache_file = CACHE_FILE
+    if not IS_SRC_IN_CACHE:
+        if DIRS_FILTERED:
+            cache_file[SRC] = {}
 
-    if src_nin_jfile:
-        history_file[SRC] = {}
+            for dir_path in DIRS_FILTERED:
+                updated_file_path = os.path.join(dir_path, SRC)
+                cache_file[SRC].update({updated_file_path: [file_hash, file_time]})
+ 
+            src_copy(DIRS_FILTERED)
+        else:
+            if not args.quiet(): 
+                print(f"You did not specify directories") 
+                args.print_help()                                                            
+            exit()
 
-        for dir_path in DIRS_FILTERED:
-            updated_file_path = os.path.join(dir_path, SRC)
-            history_file[SRC].update({updated_file_path: [file_hash, file_time]})
-        
-        src_copy(DIRS_FILTERED) 
     #updates the folders and add new ones
     else:
-        dirs_existing_a_added = dirs_existing_filter(list(history_file[SRC].getkeys()), DIRS_FILTERED)
+        dirs_existing_a_added = dirs_existing_filter(list(cache_file[SRC].getkeys()), DIRS_FILTERED)
         
-        for dir_path in dirs_existing_a_added:
-            updated_file_path = os.path.join(dir_path, SRC)
-            history_file[SRC].update({updated_file_path: [file_hash, file_time]})
-        
-        src_copy(dirs_existing_a_added)
-    
-    return history_file
+        if dirs_existing_a_added:
+            for dir_path in dirs_existing_a_added:
+                updated_file_path = os.path.join(dir_path, SRC)
+                cache_file[SRC].update({updated_file_path: [file_hash, file_time]})
+            
+            src_copy(dirs_existing_a_added)
+        else:
+            if not args.quiet(): 
+                print(f"You did not specify directories or there are empty directories in the records") 
+                args.print_help()                                                            
+            exit()
+    return cache_file
+
+#remove source file from the history file
+def src_remove():
+    cache_file = CACHE_FILE
+    if IS_SRC_IN_CACHE:
+        del cache_file[SRC]
+        if not args.quiet:
+            print(f"{SRC} removed from cache")
+    return cache_file
+
+#remove a copy directory from the history file
+DIRS_REMOVABLE = dirs_filter(args.remove)
+def dirs_remove():
+    if IS_SRC_IN_CACHE:
+        cache_file = CACHE_FILE
+        dirs_to_remove = list_item_common_remove(DIRS_REMOVABLE, DIRS_FILTERED)
+
+        dirs_existing = list(map(file_dir_name , cache_file[SRC].getkeys()))
+
+        dirs_to_remove = list(set(dirs_to_remove) or set(dirs_existing))
+
+        for dir_path in dirs_to_remove:
+            removed_file_path = os.path.join(dir_path, SRC)
+            del cache_file[SRC][removed_file_path]
+    else: 
+        if not args.quiet:
+            print("Specified source file does not exist")
+            args.print_help()
+            exit()
+        else: exit()
+    return cache_file
+
