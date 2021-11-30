@@ -1,6 +1,8 @@
 import shutil
 import os
 import argparse
+from datetime import datetime as dt
+from hashlib import sha1
 
 DIRS_FILTERED = []
 DIRS_REMOVABLE = []
@@ -61,11 +63,9 @@ file_dir_name = lambda file: os.path.dirname(file)
 
 #uses the src hash and copy time to the destinion copies 
 #for future integrity or update check
-from hashlib import sha1
-from time import ctime
 def file_hash_a_time(file):
     with open(file, 'rb') as file:
-        return sha1(file.read()).hexdigest(), ctime(os.path.getctime(SRC))
+        return sha1(file.read()).hexdigest(), os.path.getmtime(SRC)
 
 def source_not_existing_message():
     if args.quiet: exit()
@@ -238,7 +238,7 @@ def dirs_status():
         src_copies = cache_file[SRC].getkeys()
         src_hash, src_build_time = file_hash_a_time(SRC)
         
-        print(f"Original's build time: {src_build_time}\nOriginal's hash number: {src_hash}")
+        print(f"\nOriginal's build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal's hash number: {src_hash}", end="\n")
         for copy in src_copies:
             if is_file_exist_a_accessible(copy):
                 copy_hash, copy_build_time = file_hash_a_time(copy)
@@ -246,11 +246,20 @@ def dirs_status():
                 print(f"{copy} file path is inaccessable")
                 pass
             
-            diff_hash = "Equal hash file integrity" if copy_hash == src_hash else "Unequal hash file integrity"
+            diff_hash = "Equal hash value" if copy_hash == src_hash else "Unequal hash value"
             diff_time = "Equal build time" if copy_build_time == src_build_time else "Unequal build time"      
 
             if args.verbose:
-                print(f"{file_dir_name(copy)}:\n {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\n {copy_build_time} {diff_time}")
+                src_dt = dt.fromtimestamp(src_build_time)
+                copy_dt = dt.fromtimestamp(copy_build_time)
+                time_delta = src_dt - copy_dt
+
+                recommendation = "Update Recommended" if copy_hash != src_hash else "Update Not Needed"
+
+                print(f"{file_dir_name(copy)}:\n {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
+                            {dt.ctime(dt.fromtimestamp(copy_build_time))} time elapsed from last update {str(time_delta)}")
+            
+            
             print(f"{file_dir_name(copy)} has {diff_hash} and {diff_time}")
 
     else: source_not_existing_message()
