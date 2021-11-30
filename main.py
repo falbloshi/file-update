@@ -21,6 +21,9 @@ def command_parser():
     parser.add_argument("-s", "--simulate", action="store_true",
                         help="simulate copy process, don't perform real changes")
 
+    parser.add_argument("-q", "--status", action="store_true",
+                        help="prints live status of a SRC file and its related copies; overrides -q flag")
+
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="display no output")
 
@@ -52,8 +55,24 @@ SRC, BASE = src_get()
 
 is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
 is_dir_exist_a_accessible = lambda dirs: os.path.isdir(dirs) and os.access(dirs, os.R_OK)
+is_file_exist_a_accessible = lambda file: os.path.isfile(file) and os.access(file, os.R_OK)
 list_item_common_remove = lambda list_a, list_b: list(set(list_a).difference(set(list_b)))
 file_dir_name = lambda file: os.path.dirname(file)
+
+#uses the src hash and copy time to the destinion copies 
+#for future integrity or update check
+from hashlib import sha1
+from time import ctime
+def file_hash_a_time(file):
+    with open(file, 'rb') as file:
+        return sha1(file.read()).hexdigest(), ctime(os.path.getctime(SRC))
+
+def source_not_existing_message():
+    if args.quiet: exit()
+    else: 
+        print("Specified source file does not exist")
+        args.print_help()
+        exit()
 
 #removing non directory listing to process reachable and unreachable paths
 def dirs_filter(directory):
@@ -128,7 +147,7 @@ def src_history_jfile_get():
         with open(src_hist_file, 'r', encoding='utf-8') as j_file:	
             source_history = json.load(j_file)
             return source_history
-		
+	
     except FileNotFoundError: 
         #stackoverflow.com/a/35249327, if you don't copy from sof, what use of you?
         if not os.path.isfile(src_hist_file):
@@ -143,24 +162,18 @@ def src_history_jfile_get():
             
             return src_history_jfile_get()
 CACHE_FILE  = src_history_jfile_get()
-IS_SRC_IN_CACHE = SRC in CACHE_FILE 
+SRC_IN_CACHE = SRC in CACHE_FILE 
 
-#uses the src hash and copy time to the destinion copies 
-#for future integrity or update check
-from hashlib import sha1
-from time import ctime
-def src_file_hash_a_time(file):
-    with open(file, 'rb') as file:
-        return sha1(file.read()).hexdigest(), ctime(os.path.getctime(SRC))
+
 
 #if src does not exist in source_history.json, 
 #try to create new src and dir list and add to the json file
 #if src exists in source_history.json, 
 #try to update existing folders and or add new ones if added through -a flag
 def src_update():
-    file_hash, file_time = src_file_hash_a_time(SRC)
+    file_hash, file_time = file_hash_a_time(SRC)
     cache_file = CACHE_FILE
-    if not IS_SRC_IN_CACHE:
+    if not SRC_IN_CACHE:
         if DIRS_FILTERED:
             cache_file[SRC] = {}
 
@@ -196,7 +209,7 @@ def src_update():
 #remove source file from the history file
 def src_remove():
     cache_file = CACHE_FILE
-    if IS_SRC_IN_CACHE:
+    if SRC_IN_CACHE:
         del cache_file[SRC]
         if not args.quiet:
             print(f"{SRC} removed from cache")
@@ -205,7 +218,7 @@ def src_remove():
 #remove a copy directory from the history file
 DIRS_REMOVABLE = dirs_filter(args.remove)
 def dirs_remove():
-    if IS_SRC_IN_CACHE:
+    if SRC_IN_CACHE:
         cache_file = CACHE_FILE
         dirs_to_remove = list_item_common_remove(DIRS_REMOVABLE, DIRS_FILTERED)
         dirs_existing = list(map(file_dir_name , cache_file[SRC].getkeys()))
@@ -214,14 +227,30 @@ def dirs_remove():
         for dir_path in dirs_to_remove:
             removed_file_path = os.path.join(dir_path, SRC)
             del cache_file[SRC][removed_file_path]
-    else: 
-        if not args.quiet:
-            print("Specified source file does not exist")
-            args.print_help()
-            exit()
-        else: exit()
+    else: source_not_existing_message()
+
     return cache_file
 
-#Checks for status of files, perform no changes
+#Prints actual live status of copies, perform no changes, overrides quiet 
 def dirs_status():
+    cache_file = CACHE_FILE
+    if SRC_IN_CACHE:
+        src_copies = cache_file[SRC].getkeys()
+        src_hash, src_build_time = file_hash_a_time(SRC)
+        
+        print(f"Original's build time: {src_build_time}\nOriginal's hash number: {src_hash}")
+        for copy in src_copies:
+            if is_file_exist_a_accessible(copy):
+                copy_hash, copy_build_time = file_hash_a_time(copy)
+            else:
+                print(f"{copy} file path is inaccessable")
+                pass
+            
+            diff_hash = "Equal hash file integrity" if copy_hash == src_hash else "Unequal hash file integrity"
+            diff_time = "Equal build time" if copy_build_time == src_build_time else "Unequal build time"      
 
+            if args.verbose:
+                print(f"{file_dir_name(copy)}:\n {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\n {copy_build_time} {diff_time}")
+            print(f"{file_dir_name(copy)} has {diff_hash} and {diff_time}")
+
+    else: source_not_existing_message()
