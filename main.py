@@ -1,11 +1,38 @@
 import shutil
 import os
 import argparse
-from datetime import datetime as dt
+import datetime
+import json
+from datetime import datetime as dt, timedelta
 from hashlib import sha1
 
 DIRS_FILTERED = []
 DIRS_REMOVABLE = []
+
+##lambda functions
+is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
+is_dir_exist_a_accessible = lambda dirs: os.path.isdir(dirs) and os.access(dirs, os.R_OK)
+is_file_exist_a_accessible = lambda file: os.path.isfile(file) and os.access(file, os.R_OK)
+list_item_common_remove = lambda list_a, list_b: list(set(list_a).difference(set(list_b)))
+file_dir_name = lambda file: os.path.dirname(file)
+time_elapsed = lambda t_delta: datetime.timedelta(seconds=t_delta.seconds, days=t_delta.days)
+ternary_comparision = lambda message_true, message_false, object_1, object_2: message_true if object_1 == object_2 else message_false
+##lambda functions
+
+##regular functions
+#-uses the src hash and copy time to the destinion copies in json file
+#-also for future integrity or update check of copies
+def file_hash_a_time(file):
+    with open(file, 'rb') as file:
+        return sha1(file.read()).hexdigest(), os.path.getmtime(SRC)
+
+def source_not_existing_message_a_exit():
+    if args.quiet: exit()
+    else: 
+        print("Specified source file does not exist")
+        args.print_help()
+        exit()
+##regular functions
 
 def command_parser():
     parser = argparse.ArgumentParser(
@@ -23,7 +50,10 @@ def command_parser():
     parser.add_argument("-s", "--simulate", action="store_true",
                         help="simulate copy process, don't perform real changes")
 
-    parser.add_argument("-q", "--status", action="store_true",
+    parser.add_argument("--status", action="store_true",
+                        help="prints live status of a SRC file and its related copies; overrides -q flag")
+    
+    parser.add_argument("--swap", metavar="SWP", action="store_true", type=str, nargs="?",
                         help="prints live status of a SRC file and its related copies; overrides -q flag")
 
     parser.add_argument("-q", "--quiet", action="store_true",
@@ -55,24 +85,6 @@ def src_get():
     return src_full_path, src_base_name
 SRC, BASE = src_get()
 
-is_same_dirs_as_src = lambda dirs: os.path.normpath(dirs) == os.path.dirname(SRC)
-is_dir_exist_a_accessible = lambda dirs: os.path.isdir(dirs) and os.access(dirs, os.R_OK)
-is_file_exist_a_accessible = lambda file: os.path.isfile(file) and os.access(file, os.R_OK)
-list_item_common_remove = lambda list_a, list_b: list(set(list_a).difference(set(list_b)))
-file_dir_name = lambda file: os.path.dirname(file)
-
-#uses the src hash and copy time to the destinion copies 
-#for future integrity or update check
-def file_hash_a_time(file):
-    with open(file, 'rb') as file:
-        return sha1(file.read()).hexdigest(), os.path.getmtime(SRC)
-
-def source_not_existing_message():
-    if args.quiet: exit()
-    else: 
-        print("Specified source file does not exist")
-        args.print_help()
-        exit()
 
 #removing non directory listing to process reachable and unreachable paths
 def dirs_filter(directory):
@@ -137,7 +149,6 @@ def src_copy(directories):
     else: print(f"File {BASE}, Copied Sucessfuly")
 
 ### Json ###
-import json
 #returns source_history.json if exists, else creates new one
 def src_history_jfile_get():
     #stackoverflow.com/a/35249327
@@ -206,60 +217,72 @@ def src_update():
     
     return cache_file
 
+#swap source to a new folder, and add the old source to the cache file
+def src_swap():
+    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
+    if not is_file_exist_a_accessible(args.swap): return
+    
+    file_hash, file_time = file_hash_a_time(SRC)
+    cache_file = CACHE_FILE
+    
 #remove source file from the history file
 def src_remove():
     cache_file = CACHE_FILE
-    if SRC_IN_CACHE:
-        del cache_file[SRC]
-        if not args.quiet:
-            print(f"{SRC} removed from cache")
+    
+    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
+    
+    del cache_file[SRC]
+    
+    if not args.quiet:
+        print(f"{SRC} removed from cache")
+    
     return cache_file
 
 #remove a copy directory from the history file
 DIRS_REMOVABLE = dirs_filter(args.remove)
 def dirs_remove():
-    if SRC_IN_CACHE:
-        cache_file = CACHE_FILE
-        dirs_to_remove = list_item_common_remove(DIRS_REMOVABLE, DIRS_FILTERED)
-        dirs_existing = list(map(file_dir_name , cache_file[SRC].getkeys()))
-        dirs_to_remove = list(set(dirs_to_remove).intersection(set(dirs_existing)))
+    cache_file = CACHE_FILE
+    
+    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
+    
+    dirs_to_remove = list_item_common_remove(DIRS_REMOVABLE, DIRS_FILTERED)
+    dirs_existing = list(map(file_dir_name , cache_file[SRC].getkeys()))
+    dirs_to_remove = list(set(dirs_to_remove).intersection(set(dirs_existing)))
 
-        for dir_path in dirs_to_remove:
-            removed_file_path = os.path.join(dir_path, SRC)
-            del cache_file[SRC][removed_file_path]
-    else: source_not_existing_message()
-
+    for dir_path in dirs_to_remove:
+        removed_file_path = os.path.join(dir_path, SRC)
+        del cache_file[SRC][removed_file_path]
+    
     return cache_file
 
 #Prints actual live status of copies, perform no changes, overrides quiet 
 def dirs_status():
+    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
+
     cache_file = CACHE_FILE
-    if SRC_IN_CACHE:
-        src_copies = cache_file[SRC].getkeys()
-        src_hash, src_build_time = file_hash_a_time(SRC)
+    src_copies = cache_file[SRC].getkeys()
+    src_hash, src_build_time = file_hash_a_time(SRC)
+    
+    print(f"\nOriginal's build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal's hash value: {src_hash}", end="\n")
+    for copy in src_copies:
+        if is_file_exist_a_accessible(copy):
+            copy_hash, copy_build_time = file_hash_a_time(copy)
+        else:
+            print(f"{copy} file path is inaccessable")
+            pass
         
-        print(f"\nOriginal's build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal's hash number: {src_hash}", end="\n")
-        for copy in src_copies:
-            if is_file_exist_a_accessible(copy):
-                copy_hash, copy_build_time = file_hash_a_time(copy)
-            else:
-                print(f"{copy} file path is inaccessable")
-                pass
-            
-            diff_hash = "Equal hash value" if copy_hash == src_hash else "Unequal hash value"
-            diff_time = "Equal build time" if copy_build_time == src_build_time else "Unequal build time"      
+        diff_hash = ternary_comparision("Equal hash value", "Unequal hash value", copy_hash, src_hash)
+        diff_time = ternary_comparision("Equal build time", "Unequal build time", copy_hash, src_hash)
 
-            if args.verbose:
-                src_dt = dt.fromtimestamp(src_build_time)
-                copy_dt = dt.fromtimestamp(copy_build_time)
-                time_delta = src_dt - copy_dt
+        if args.verbose:
+            t_delta = time_elapsed(dt.fromtimestamp(src_build_time) - dt.fromtimestamp(copy_build_time))
+            verdict =  ternary_comparision("Update Not Needed", "Update Recommended", "Equal hash value", diff_hash)
 
-                recommendation = "Update Recommended" if copy_hash != src_hash else "Update Not Needed"
+            print(f"{file_dir_name(copy)}:\n {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
+                    \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
+                    \n{verdict} for the copy in {file_dir_name(copy)}", end="\n")    
+        
+        print(f"{file_dir_name(copy)} has {diff_hash} and {diff_time} - {verdict}", end="\n")
+    
 
-                print(f"{file_dir_name(copy)}:\n {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
-                            {dt.ctime(dt.fromtimestamp(copy_build_time))} time elapsed from last update {str(time_delta)}")
-            
-            
-            print(f"{file_dir_name(copy)} has {diff_hash} and {diff_time}")
 
-    else: source_not_existing_message()
