@@ -214,6 +214,20 @@ def src_update():
             exit()
     
     return cache_file
+def src_swap(file):
+    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
+    if not is_file_exist_a_accessible(file): return
+
+
+
+    file_hash, file_time = file_hash_a_time(SRC)
+    cache_file = CACHE_FILE
+    cache_file.update({file:cache_file[SRC]})
+    cache_file[file].update({SRC: [file_hash, file_time]})
+
+    del cache_file[SRC]
+
+    return cache_file
 
 #swap source to a new folder, and add the old source to the cache file
 def src_swap():
