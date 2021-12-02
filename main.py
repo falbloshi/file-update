@@ -22,9 +22,7 @@ ternary_comparision = lambda message_true, message_false, object_1, object_2: me
 ##regular functions
 #-uses the src hash and copy time to the destinion copies in json file
 #-also for future integrity or update check of copies
-def file_hash_a_time(file):
-    with open(file, 'rb') as file:
-        return sha1(file.read()).hexdigest(), os.path.getmtime(SRC)
+
 
 def source_not_existing_message_a_exit():
     if args.quiet: exit()
