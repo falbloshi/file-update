@@ -14,13 +14,13 @@ def src_get(src):
     return src_full_path, src_base_name
 
 
-def src_copy(directories, src, simulate):
-    if not simulate:
+def src_copy(directories, src):
+    if not messages.args.simulate:
         for directory in directories:
             shutil.copy2(src, os.path.normpath(directory))
     messages.src_copy_message(directories, os.path.basename(src))
 
-def src_update(cache_file, src, directories):
+def src_update(cache_file, src, directories=[]):
     file_hash, file_time = file_hash_a_time(src)
     #updates the folders and add new ones
     try:
@@ -32,10 +32,11 @@ def src_update(cache_file, src, directories):
                 cache_file[src].update({updated_file_path: [file_hash, file_time]})
                 
             
-            src_copy(dirs_existing_a_added)
+            src_copy(dirs_existing_a_added, src)
             messages.src_copy_message(directories, os.path.basename(src))
+    #if src doesn't exist in json, add it and its folders
     except KeyError:
-        if directories:
+        if directoryfilter.dirs_filter(directories):
             cache_file[src] = {}
 
             for dir_path in directories:
@@ -43,16 +44,15 @@ def src_update(cache_file, src, directories):
                 cache_file[src].update({updated_file_path: [file_hash, file_time]})
 
             
-            src_copy(directories)
+            src_copy(directories, src)
             messages.src_copy_message(directories, os.path.basename(src))
-    
+        
     return cache_file
 
 def src_swap(cache_file, src, swap_file):
     if not is_file_exist_a_accessible(swap_file): messages.source_not_existing_message_a_exit(swap_file)
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
-            bool(cache_file[src])
             file_hash, file_time = file_hash_a_time(src)
 
             cache_file.update({swap_file:cache_file[src]})

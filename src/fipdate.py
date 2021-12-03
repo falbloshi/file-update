@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
-
-
-import commandparse
-import directoryfilter
 import cache
-import lambdafuncs
-import copyfile
+import directories
 import sourcefile
-
-
-
+from commandparse import args
 
 if __name__ == "__main__":
 
-    args = commandparse.command_parser()
+    cache_d = cache.src_cache_get()
+    SRC = sourcefile.src_get()[0]
 
+    if args.add or args.update: 
+        cache_d = sourcefile.src_update(cache_d, SRC, args.add)
     
+    elif args.swap: 
+        cache_d = sourcefile.src_swap(cache_d, SRC, args.swap)
+    
+    elif args.remove_dir: 
+        cache_d = directories.dirs_remove(cache_d, SRC, args.remove_dir)
+    
+    elif args.delete:
+        cache_d = sourcefile.src_remove(cache_d, SRC)
+    
+    if args.status: 
+        directories.dirs_status(cache_d, SRC)
+
+    cache.src_cache_update(cache_d)
+
+
+

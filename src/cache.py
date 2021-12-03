@@ -7,8 +7,8 @@ def src_cache_get():
     src_cache_dir, src_cache_file = osplatform.cache_dir_a_file()
     try:
         with open(src_cache_file, 'r', encoding='utf-8') as j_file:	
-            source_history = json.load(j_file)
-            return source_history
+            cache_d = json.load(j_file)
+            return cache_d 
 	
     except FileNotFoundError: 
         messages.src_cache_get_message(src_cache_dir)

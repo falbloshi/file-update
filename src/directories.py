@@ -31,7 +31,6 @@ def dirs_status(cache_file, src):
                 pass
             
             diff_hash = ternary_comparision("Equal hash value", "Unequal hash value", copy_hash, src_hash)
-            diff_time = ternary_comparision("Equal build time", "Unequal build time", copy_hash, src_hash)
 
             t_delta = time_elapsed(dt.fromtimestamp(src_build_time) - dt.fromtimestamp(copy_build_time))
             verdict =  ternary_comparision("Update Not Needed", "Update Recommended", "Equal hash value", diff_hash)
