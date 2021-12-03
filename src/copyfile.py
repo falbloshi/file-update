@@ -8,8 +8,8 @@ def dirs_remove(cache_file, src, directories):
         dirs_to_remove = list(set(directories).intersection(set(dirs_existing)))
 
         for dir_path in dirs_to_remove:
-            removed_file_path = os.path.join(dir_path, src)
-            del cache_file[src][removed_file_path]
+            file_path = os.path.join(dir_path, src)
+            del cache_file[src][file_path]
     
         return cache_file
     except KeyError:
