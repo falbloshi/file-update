@@ -7,7 +7,7 @@ from commandparse import args
 if __name__ == "__main__":
 
     cache_d = cache.src_cache_get()
-    SRC = sourcefile.src_get()[0]
+    SRC = sourcefile.src_get(args.source)[0]
 
     if args.add or args.update: 
         cache_d = sourcefile.src_update(cache_d, SRC, args.add)

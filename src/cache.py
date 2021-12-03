@@ -1,29 +1,30 @@
 import os
-import json 
+import json
 import osplatform
 import messages
 
 def src_cache_get():
-    src_cache_dir, src_cache_file = osplatform.cache_dir_a_file()
+    src_cache_dir, src_cache_file = osplatform.cache_dir_a_file_get()
     try:
-        with open(src_cache_file, 'r', encoding='utf-8') as j_file:	
-            cache_d = json.load(j_file)
-            return cache_d 
-	
-    except FileNotFoundError: 
+        with open(src_cache_file, 'rb') as jsonfile:
+            cache_d = json.load(jsonfile)
+            
+            return cache_d
+          
+    except FileNotFoundError:
         messages.src_cache_get_message(src_cache_dir)
 
         if not os.path.isfile(src_cache_file):
             os.makedirs(src_cache_dir, exist_ok=True)
-            
-        with open(src_cache_file, 'x+', encoding='utf-8') as j_file:
+
+        with open(src_cache_file, 'x+', encoding='utf-8') as jsonfile:
             empty = {}
-            json.dump(empty, j_file, indent = 4)
+            json.dump(empty, jsonfile, indent = 4)
             
-            return src_cache_get()
+            return empty
 
 def src_cache_update(cache_file):
-    src_cache_file = osplatform.cache_dir_a_file()[1]
+    src_cache_file = osplatform.cache_dir_a_file_get()[1]
 
-    with open(src_cache_file, 'w', encoding='utf-8') as j_file:
-            json.dump(cache_file, j_file, indent = 4)
+    with open(src_cache_file, 'w', encoding='utf-8') as jsonfile:
+            json.dump(cache_file, jsonfile, indent = 4)

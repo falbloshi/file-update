@@ -18,7 +18,6 @@ def src_copy(directories, src):
     if not messages.args.simulate:
         for directory in directories:
             shutil.copy2(src, os.path.normpath(directory))
-    messages.src_copy_message(directories, os.path.basename(src))
 
 def src_update(cache_file, src, directories=[]):
     file_hash, file_time = file_hash_a_time(src)
@@ -29,18 +28,22 @@ def src_update(cache_file, src, directories=[]):
         if dirs_existing_a_added:
             for dir_path in dirs_existing_a_added:
                 updated_file_path = os.path.join(dir_path, src)
-                cache_file[src].update({updated_file_path: [file_hash, file_time]})
-                
+                print(f"{updated_file_path}")
+                cache_file[src].update({updated_file_path: [file_hash, file_time]})     
             
             src_copy(dirs_existing_a_added, src)
             messages.src_copy_message(directories, os.path.basename(src))
     #if src doesn't exist in json, add it and its folders
-    except KeyError:
+    except KeyError or TypeError:
+        
+        #need to fix paths from the .dirs_filter
         if directoryfilter.dirs_filter(directories):
             cache_file[src] = {}
+            print(directories)
 
             for dir_path in directories:
                 updated_file_path = os.path.join(dir_path, src)
+                print(f"{updated_file_path}")
                 cache_file[src].update({updated_file_path: [file_hash, file_time]})
 
             

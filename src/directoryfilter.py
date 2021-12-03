@@ -4,7 +4,7 @@ import messages
 def dirs_filter(directory):
     dirs = set([dirs for dirs in directory \
             if is_dir_exist_a_accessible(dirs)
-            and not is_same_dirs_as_src(dirs)])
+            and not is_same_dirs_as_src(dirs, messages.args.source)])
     
     messages.dirs_filter_message(directory, dirs)
     
