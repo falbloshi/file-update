@@ -34,7 +34,7 @@ def dirs_existing_filter_message(directory, filtered_directory, new_directory_li
 def source_not_existing_message_a_exit(swap=''):
     if args.quiet: exit()
     else: 
-        file_type = "source" if not args.swap else "swap"
+        file_type = "source" if args.swap else "swap"
         print(f"Specified {file_type} file does not exist")
         args.print_help()
         exit()
