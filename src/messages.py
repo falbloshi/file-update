@@ -41,4 +41,12 @@ def src_copy_message(verbosity):
         elif args.quiet: pass
         else: print(f"File {BASE}, Copied Sucessfuly")
     
-        
+def source_not_existing_message_a_exit(help_message):
+    if args.quiet: exit()
+    else: 
+        print("Specified source file does not exist")
+        args.print_help()
+        exit()
+def  scr_jfile_get_messages():
+    if not args.quiet:
+        print(f'History file did not exist. Creating source_history.json in {src_cache_dir}')

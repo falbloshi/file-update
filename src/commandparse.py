@@ -2,7 +2,9 @@ import argparse
 
 def command_parser():
     parser = argparse.ArgumentParser(
-            description = 'Updates multiple copies of a file(SRC) residing in different directories(DIRS)')
+                description = 'Updates multiple copies of a file(SRC)\
+                residing in different directories(DIRS)', 
+                prog="fupdate")
 
     parser.add_argument("source", type=str, metavar="SRC",
                         help="SRC, the origin source file to be copied")

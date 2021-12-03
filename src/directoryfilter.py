@@ -1,7 +1,6 @@
 from lambdafuncs import *
 import messages
 
-
 def dirs_filter(directory):
     dirs = set([dirs for dirs in directory \
             if is_dir_exist_a_accessible(dirs)

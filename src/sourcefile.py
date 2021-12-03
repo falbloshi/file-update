@@ -1,5 +1,7 @@
 import os
 import shutil
+import directoryfilter
+import messages
 from lambdafuncs import *
 
 def src_get(src):
@@ -12,63 +14,54 @@ def src_get(src):
     
     return src_full_path, src_base_name
 
-SRC, CACHE_FILE,SRC_IN_CACHE, DIRS_FILTERED = 0
-def src_copy(directories, src, simulate):
 
+def src_copy(directories, src, simulate):
     if not simulate:
         for directory in directories:
-            shutil.copy2(SRC, os.path.normpath(directory))
+            shutil.copy2(src, os.path.normpath(directory))
 
-def src_update():
-    file_hash, file_time = file_hash_a_time(SRC)
-    cache_file = CACHE_FILE
-    if not SRC_IN_CACHE:
-        if DIRS_FILTERED:
-            cache_file[SRC] = {}
-
-            for dir_path in DIRS_FILTERED:
-                updated_file_path = os.path.join(dir_path, SRC)
-                cache_file[SRC].update({updated_file_path: [file_hash, file_time]})
-
-            src_copy(DIRS_FILTERED)
-        else:
-            if not args.quiet(): 
-                print(f"You did not specify directories") 
-                args.print_help()                                                            
-            exit()
-
+def src_update(cache_file, src, directories):
+    file_hash, file_time = file_hash_a_time(src)
     #updates the folders and add new ones
-    else:
-        dirs_existing_a_added = dirs_existing_filter(list(cache_file[SRC].getkeys()), DIRS_FILTERED)
+    try:
+        dirs_existing_a_added = directoryfilter.dirs_existing_filter(list(cache_file[src].getkeys()), directories)
         
         if dirs_existing_a_added:
             for dir_path in dirs_existing_a_added:
-                updated_file_path = os.path.join(dir_path, SRC)
-                cache_file[SRC].update({updated_file_path: [file_hash, file_time]})
+                updated_file_path = os.path.join(dir_path, src)
+                cache_file[src].update({updated_file_path: [file_hash, file_time]})
             
-            src_copy(dirs_existing_a_added)
-        else:
-            if not args.quiet(): 
-                print(f"You did not specify directories or there are empty directories in the records") 
-                args.print_help()                                                            
-            exit()
-    
+            src_copy(dirs_existing_a_added)   
+    except KeyError:
+        if directories:
+            cache_file[src] = {}
+
+            for dir_path in directories:
+                updated_file_path = os.path.join(dir_path, src)
+                cache_file[src].update({updated_file_path: [file_hash, file_time]})
+
+            src_copy(directories)
     return cache_file
 
-def src_swap(swap):
-    if not is_file_exist_a_accessible(swap): return
-    
-    file_hash, file_time = file_hash_a_time(SRC)
-    cache_file = CACHE_FILE
+def src_swap(cache_file, src, swap_file):
+    if not is_file_exist_a_accessible(swap_file): return
+    try: 
+        bool(cache_file[src])
+        file_hash, file_time = file_hash_a_time(src)
 
-def src_remove():
-    cache_file = CACHE_FILE
-    
-    if not SRC_IN_CACHE: source_not_existing_message_a_exit()
-    
-    del cache_file[SRC]
-    
-    if not args.quiet:
-        print(f"{SRC} removed from cache")
-    
-    return cache_file
+        cache_file.update({swap_file:cache_file[src]})
+        cache_file[swap_file].update({src: [file_hash, file_time]})
+
+        del cache_file[src]
+
+        return cache_file
+    except KeyError:
+        messages.source_not_existing_message_a_exit()
+
+def src_remove(cache_file, src):
+    try:
+        del cache_file[src]   
+        return cache_file
+
+    except KeyError:
+        messages.source_not_existing_message_a_exit()
