@@ -33,6 +33,17 @@ def dirs_existing_filter_message(directory, filtered_directory, new_directory_li
     else: 
         if directory != filtered_directory: print("Invalid directories removed")
 
+def dirs_remove_message(dirs_to_remove):
+    if args.verbose:
+        num = 1
+        for each in list(dirs_to_remove):
+            print(f"{num} - \"{each}\" removed from from source")
+    elif args.quiet: pass
+    else: 
+        print(f"Directories removed from update")
+
+
+
 def source_not_existing_message_a_exit(swap=''):
     if args.quiet: exit()
     else: 
@@ -41,15 +52,27 @@ def source_not_existing_message_a_exit(swap=''):
         args.print_help()
         exit()
 
-def src_copy_message(directories, src_name):
+def src_copy_add_message(directories, src_name):
     if args.verbose:
-            print(f"\nCopying/Updating {src_name} in ")
+            print(f"\nFolders added {src_name} successfuly ")
             num = 1
             for item in directories:
                 print(f"{num} - {os.path.normpath(item)}")
                 num += 1
     elif args.quiet: pass
-    else: print(f"File {src_name}, Copied Sucessfuly")
+    else: print(f"File {src_name}, added sucessfuly")
+
+
+def src_copy_message(directories, src_name, copy_or_updating="copying"):
+
+    if args.verbose:
+            print(f"\nCopying {src_name} in ")
+            num = 1
+            for item in directories:
+                print(f"{num} - {os.path.normpath(item)}")
+                num += 1
+    elif args.quiet: pass
+    else: print(f"File {src_name}, copied sucessfuly")
     
 def  src_cache_get_message(src_cache_dir):
     if not args.quiet:

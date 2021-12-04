@@ -1,17 +1,20 @@
 import messages
+from directoryfilter import dirs_filter
 from lambdafuncs import *
 from datetime import datetime as dt
 
 
-#fix dirs_remove
 def dirs_remove(cache_file, src, directories):    
     try:
+        directories = dirs_filter(directories)
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
         dirs_to_remove = list(set(directories).intersection(set(dirs_existing)))
 
-        for dir_path in dirs_to_remove:
-            file_path = os.path.join(dir_path, src)
-            del cache_file[src][file_path]
+        dirs_to_remove = [os.path.join(file_path, os.path.basename(src)) for file_path in dirs_to_remove]
+        for dirs in dirs_to_remove:
+            del cache_file[src][dirs]
+
+        messages.dirs_remove_message(dirs_to_remove)
     
         return cache_file
     except KeyError:

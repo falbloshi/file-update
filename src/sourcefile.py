@@ -19,24 +19,26 @@ def src_copy(directories, src):
         for directory in directories:
             shutil.copy2(src, os.path.normpath(directory))
 
-def src_update(cache_file, src, new_directories=[]):
+def src_update(cache_file, src, dirs_new=[]):
     file_hash, file_time = file_hash_a_time(src)
+    BASE = os.path.basename(src)
     #updates the folders and add new ones
     try:
-        bool(cache_file[src]) #sanity check
-        print("We are in the existing after cache_file check")
-        dirs_existing_a_added = directoryfilter.dirs_existing_filter(list(map(file_dir_name, cache_file[src].keys())), new_directories)
+        dirs_new = directoryfilter.dirs_filter(dirs_new)
+        dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
+        dirs_existing_a_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
     
-        for dir_path in dirs_existing_a_added:
-            updated_file_path = os.path.join(dir_path, os.path.basename(src))
+        for dir_path in dirs_existing_a_new:
+            updated_file_path = os.path.join(dir_path, BASE)
             cache_file[src].update({updated_file_path: [file_hash, file_time]})     
         
-        src_copy(dirs_existing_a_added, src)
-        messages.src_copy_message(dirs_existing_a_added, os.path.basename(src))
+        src_copy(dirs_existing_a_new, src)
+        #fix
+        messages.src_copy_add_message(dirs_new, BASE)
+        messages.src_copy_message(dirs_existing, BASE)
     #if src doesn't exist in json, add it and its folders
     except KeyError or TypeError:
-        print("We are in the New strict")
-        directories = directoryfilter.dirs_filter(new_directories)
+        directories = directoryfilter.dirs_filter(dirs_new)
         if directories:
             cache_file[src] = {}
 
