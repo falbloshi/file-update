@@ -7,17 +7,16 @@ def dirs_filter(directory):
             and not is_same_dirs_as_src(dirs, messages.args.source)])
     
     messages.dirs_filter_message(directory, dirs)
-    
-    return list(dirs)
 
-def dirs_existing_filter(directory, new_directory_list=[]):
-    #assuming they are keys in cache file 
-    directory = [os.path.dirname(dirs) for dirs in directory]
+    return list(map(os.path.abspath, dirs))
+
+def dirs_existing_filter(directory, new_directories=[]):
+    new_directories = dirs_filter(new_directories)
 
     filtered_directory = [dirs for dirs in directory \
                             if is_dir_exist_a_accessible(dirs)\
-                            and dirs not in new_directory_list]
+                            and dirs not in new_directories]
     
-    messages.dirs_existing_filter_message(directory, filtered_directory, new_directory_list)
-
-    return filtered_directory + new_directory_list
+    messages.dirs_existing_filter_message(directory, filtered_directory, new_directories)
+     
+    return list(map(os.path.abspath, filtered_directory)) +  list(map(os.path.abspath, new_directories))
