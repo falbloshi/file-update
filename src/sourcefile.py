@@ -24,16 +24,16 @@ def src_update(cache_file, src, dirs_new=[]):
     BASE = os.path.basename(src)
     #updates the folders and add new ones
     try:
-        dirs_new = directoryfilter.dirs_filter(dirs_new)
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
-        dirs_existing_a_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
+        dirs_existing, dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
     
-        for dir_path in dirs_existing_a_new:
+
+        for dir_path in dirs_existing + dirs_new:
             updated_file_path = os.path.join(dir_path, BASE)
             cache_file[src].update({updated_file_path: [file_hash, file_time]})     
         
-        src_copy(dirs_existing_a_new, src)
-        #fix
+        src_copy(dirs_existing + dirs_new, src)
+ 
         messages.src_copy_add_message(dirs_new, BASE)
         messages.src_copy_message(dirs_existing, BASE)
     #if src doesn't exist in json, add it and its folders
