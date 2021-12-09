@@ -8,9 +8,12 @@ if __name__ == "__main__":
 
     cache_d = cache.src_cache_get()
     SRC = sourcefile.src_get(args.source)[0]
-
-    if args.add or args.update: 
-        cache_d = sourcefile.src_update(cache_d, SRC, args.add)
+    
+    if args.add or args.update:
+        if args.add: 
+            cache_d = sourcefile.src_add(cache_d, SRC, args.add)
+        else:
+            cache_d = sourcefile.src_update(cache_d, SRC)
     
     elif args.swap: 
         cache_d = sourcefile.src_swap(cache_d, SRC, args.swap)

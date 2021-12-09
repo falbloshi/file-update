@@ -18,24 +18,24 @@ def src_copy(directories, src):
     if not messages.args.simulate:
         for directory in directories:
             shutil.copy2(src, os.path.normpath(directory))
+    return
 
-def src_update(cache_file, src, dirs_new=[]):
+def src_add(cache_file, src, dirs_new=[]):
     file_hash, file_time = file_hash_a_time(src)
     BASE = os.path.basename(src)
-    #updates the folders and add new ones
+
+    #add new folders
     try:
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
-        dirs_existing, dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
-    
+        null, dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
 
-        for dir_path in dirs_existing + dirs_new:
-            updated_file_path = os.path.join(dir_path, BASE)
-            cache_file[src].update({updated_file_path: [file_hash, file_time]})     
+        for dir_path in dirs_new:
+            added_file_path = os.path.join(dir_path, BASE)
+            cache_file[src].update({added_file_path: [file_hash, file_time]})     
         
-        src_copy(dirs_existing + dirs_new, src)
- 
+        src_copy(dirs_new, src)
         messages.src_copy_add_message(dirs_new, BASE)
-        messages.src_copy_message(dirs_existing, BASE)
+    
     #if src doesn't exist in json, add it and its folders
     except KeyError or TypeError:
         directories = directoryfilter.dirs_filter(dirs_new)
@@ -43,12 +43,30 @@ def src_update(cache_file, src, dirs_new=[]):
             cache_file[src] = {}
 
             for dir_path in directories:
-                updated_file_path = os.path.join(dir_path, os.path.basename(src))
-                cache_file[src].update({updated_file_path: [file_hash, file_time]})
+                new_file_path = os.path.join(dir_path, os.path.basename(src))
+                cache_file[src].update({new_file_path: [file_hash, file_time]})
             
             src_copy(directories, src)
             messages.src_copy_message(directories, os.path.basename(src))
+
+    return cache_file
+
+def src_update(cache_file, src):
+    file_hash, file_time = file_hash_a_time(src)
+    BASE = os.path.basename(src)
+    #updates the folders
+    try:
+        dirs_existing = list(map(file_dir_name, cache_file[src].keys())) 
+
+        for dir_path in dirs_existing:
+            updated_file_path = os.path.join(dir_path, BASE)
+            cache_file[src].update({updated_file_path: [file_hash, file_time]})     
         
+        src_copy(dirs_existing, src)
+        messages.src_copy_message(dirs_existing, BASE)
+    except KeyError:
+        messages.source_not_existing_message_a_exit(src)
+
     return cache_file
 
 def src_swap(cache_file, src, swap_file):

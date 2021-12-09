@@ -10,13 +10,14 @@ def dirs_filter(directories):
 
     return list(map(os.path.abspath, filtered_directories))
 
-def dirs_existing_filter(directories, new_directories=[]):
+#Fix - should remove everything in new_directories if they are existing in existing directories
+def dirs_existing_filter(existing_directories, new_directories=[]):
     new_directories = dirs_filter(new_directories)
 
-    filtered_directories = [dirs for dirs in directories \
+    filtered_existing_directories = [dirs for dirs in existing_directories \
                             if is_dir_exist_a_accessible(dirs)\
                             and dirs not in new_directories]
     
-    messages.dirs_existing_filter_message(directories, filtered_directories, new_directories)
+    messages.dirs_existing_filter_message(existing_directories, filtered_existing_directories, new_directories)
      
-    return list(map(os.path.abspath, filtered_directories)),  list(map(os.path.abspath, new_directories))
+    return list(map(os.path.abspath, filtered_existing_directories)),  list(map(os.path.abspath, new_directories))
