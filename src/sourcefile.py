@@ -9,7 +9,7 @@ def src_get(src):
         src_full_path = os.path.realpath(src)
         src_base_name = os.path.basename(src)
     else: 
-        messages.source_not_existing_message_a_exit()
+        messages.source_not_existing_message_and_exit()
     
     return src_full_path, src_base_name
 
@@ -27,7 +27,7 @@ def src_add(cache_file, src, dirs_new=[]):
     #add new folders
     try:
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
-        null, dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
+        dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
 
         for dir_path in dirs_new:
             added_file_path = os.path.join(dir_path, BASE)
@@ -56,7 +56,7 @@ def src_update(cache_file, src):
     BASE = os.path.basename(src)
     #updates the folders
     try:
-        dirs_existing = list(map(file_dir_name, cache_file[src].keys())) 
+        dirs_existing = directoryfilter.dirs_filter(list(map(file_dir_name, cache_file[src].keys())), "existing")
 
         for dir_path in dirs_existing:
             updated_file_path = os.path.join(dir_path, BASE)
@@ -65,12 +65,12 @@ def src_update(cache_file, src):
         src_copy(dirs_existing, src)
         messages.src_copy_message(dirs_existing, BASE)
     except KeyError:
-        messages.source_not_existing_message_a_exit(src)
+        messages.source_not_existing_message_and_exit(src)
 
     return cache_file
 
 def src_swap(cache_file, src, swap_file):
-    if not is_file_exist_a_accessible(swap_file): messages.source_not_existing_message_a_exit(swap_file)
+    if not is_file_exist_a_accessible(swap_file): messages.source_not_existing_message_and_exit(swap_file)
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
             file_hash, file_time = file_hash_a_time(src)
@@ -82,7 +82,7 @@ def src_swap(cache_file, src, swap_file):
 
             return cache_file
         except KeyError:
-            messages.source_not_existing_message_a_exit()
+            messages.source_not_existing_message_and_exit()
     else:
         pass
 
@@ -92,4 +92,4 @@ def src_remove(cache_file, src):
         return cache_file
 
     except KeyError:
-        messages.source_not_existing_message_a_exit()
+        messages.source_not_existing_message_and_exit()

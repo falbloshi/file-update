@@ -1,12 +1,11 @@
 from commandparse import args, parser
 from lambdafuncs import *
 
-
-def dirs_filter_message(directories, filtered_directories):
+def dirs_filter_message(directories, filtered_directories, message):
     if not directories: return
     if args.verbose:
         num = 1
-        print("\nChecking added:")
+        if message: print(f"\nChecking {message}:")
         for dirs in list_item_common_remove(set(directories), set(filtered_directories)):
             if is_same_dirs_as_src(dirs, args.source): 
                 print(f'{num} - \'{dirs}\' removed - no action to the same directory as the source file')
@@ -21,31 +20,22 @@ def dirs_filter_message(directories, filtered_directories):
     else: 
         if set(directories) != set(filtered_directories): print('Invalid directories removed')
 
-def dirs_existing_filter_message(existing_directories, filtered_existing_directories, new_directories):
+def dirs_new_filter_message(existing_directories, filtered_new_directories):
     if args.verbose:
-        num = 1    
-        if filtered_existing_directories + new_directories: print("\nChecking existing:")
-        for dirs in existing_directories:
-            if dirs in new_directories: 
-                print(f'{num} - \'{dirs}\' removed - already exists')
-                num += 1
-            elif dirs not in filtered_existing_directories: 
-                print(f'{num} - \'{dirs}\' removed - folder does not exist or inaccessible')
-                num += 1
+        print("\n".join((f"{num} - '{dirs}' removed - already exists" for num, dirs \
+            in enumerate(list(set(existing_directories).difference(set(filtered_new_directories))), 1))))
     elif args.quiet: return
     else: 
-        if set(existing_directories) != set(filtered_existing_directories): print('Invalid directories removed')
+        if set(existing_directories) != set(filtered_new_directories): print('Invalid directories removed')
 
 def dirs_remove_message(dirs_to_remove):
     if args.verbose:
-        num = 1
-        for each in list(dirs_to_remove):
-            print(f'{num} - \'{each}\' removed from from source')
+        print("\n".join((f"{num} - '{dirs}' removed from cache" for num, dirs in enumerate(dirs_to_remove, 1))))
     elif args.quiet: return
     else: 
         print(f'Directories removed from future updates')
 
-def source_not_existing_message_a_exit(swap=''):
+def source_not_existing_message_and_exit(swap=''):
     if args.quiet: exit()
     else: 
         file_type = 'source' if not swap else 'swap'

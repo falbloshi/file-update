@@ -3,6 +3,7 @@ import json
 import osplatform
 import messages
 
+#gets cache file which stores source file location and its copies
 def src_cache_get():
     src_cache_dir, src_cache_file = osplatform.cache_dir_a_file_get()
     try:

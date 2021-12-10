@@ -6,11 +6,11 @@ from datetime import datetime as dt
 
 def dirs_remove(cache_file, src, directories):    
     try:
-        directories = dirs_filter(directories)
+        directories = dirs_filter(directories, None)
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
         dirs_to_remove = list(set(directories).intersection(set(dirs_existing)))
-
         dirs_to_remove = [os.path.join(file_path, os.path.basename(src)) for file_path in dirs_to_remove]
+        
         for dirs in dirs_to_remove:
             del cache_file[src][dirs]
 
@@ -18,7 +18,7 @@ def dirs_remove(cache_file, src, directories):
     
         return cache_file
     except KeyError:
-        messages.source_not_existing_message_a_exit()     
+        messages.source_not_existing_message_and_exit()     
 
 
 #Prints actual live status of copies, perform no changes, overrides quiet 
@@ -44,5 +44,5 @@ def dirs_status(cache_file, src):
                     \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
                     \n{verdict} for the copy in {os.path.basename(copy)}", end="\n")    
     except KeyError:
-        messages.source_not_existing_message_a_exit()  
+        messages.source_not_existing_message_and_exit()  
     
