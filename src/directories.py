@@ -4,6 +4,7 @@ from lambdafuncs import *
 from datetime import datetime as dt
 
 
+#removes directories in the cache file, does not remove actual copies
 def dirs_remove(cache_file, src, directories):    
     try:
         directories = dirs_filter(directories, None)
@@ -21,28 +22,33 @@ def dirs_remove(cache_file, src, directories):
         messages.source_not_existing_message_and_exit()     
 
 
-#Prints actual live status of copies, perform no changes, overrides quiet 
+#prints actual live status of copies, perform no changes, overrides quiet 
 def dirs_status(cache_file, src):
     try:
         src_copies = cache_file[src].keys()
-        src_hash, src_build_time = file_hash_a_time(src)
+        src_hash, src_build_time = file_hash_and_time(src)
         
-        print(f"\nOriginal's build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal's hash value: {src_hash}", end="\n")
+        print(f'\nOriginal\'s build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal\'s hash value: {src_hash}', end='\n')
+        count = 0
         for copy in src_copies:
-            if is_file_exist_a_accessible(copy):
-                copy_hash, copy_build_time = file_hash_a_time(copy)
+            count += 1
+            if is_file_exist_and_accessible(copy):
+                copy_hash, copy_build_time = file_hash_and_time(copy)
             else:
-                print(f"{copy} file path is inaccessible")
+                print(f'{copy} file path is inaccessible')
                 pass
             
-            diff_hash = ternary_comparision("Equal hash value", "Unequal hash value", copy_hash, src_hash)
+            diff_hash = ternary_comparision('Equal hash value', 'Unequal hash value', copy_hash, src_hash)
 
             t_delta = time_elapsed(dt.fromtimestamp(src_build_time) - dt.fromtimestamp(copy_build_time))
-            verdict =  ternary_comparision("Update not needed", "Update recommended", "Equal hash value", diff_hash)
+            verdict =  ternary_comparision('Update not needed', 'Update recommended', 'Equal hash value', diff_hash)
 
-            print(f"\n{file_dir_name(copy)}:\n{copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
+            
+            print(f'\n{count}) {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
                     \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
-                    \n{verdict} for the copy in {os.path.basename(copy)}", end="\n")    
+                    \n{verdict} for the copy in {file_dir_name(copy)}', end='\n')    
+
+        
     except KeyError:
         messages.source_not_existing_message_and_exit()  
     

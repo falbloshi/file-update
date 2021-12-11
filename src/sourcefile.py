@@ -4,6 +4,8 @@ import directoryfilter
 import messages
 from lambdafuncs import *
 
+
+#sanity check for source file
 def src_get(src):
     if os.path.isfile(src): 
         src_full_path = os.path.realpath(src)
@@ -14,17 +16,18 @@ def src_get(src):
     return src_full_path, src_base_name
 
 
+#copies the source in the specified directories, either in added or stored in cache file
 def src_copy(directories, src):
     if not messages.args.simulate:
         for directory in directories:
             shutil.copy2(src, os.path.normpath(directory))
     return
 
-def src_add(cache_file, src, dirs_new=[]):
-    file_hash, file_time = file_hash_a_time(src)
-    BASE = os.path.basename(src)
 
-    #add new folders
+#adds folders to source path in cache file, copies them if they don't exists
+def src_add(cache_file, src, dirs_new=[]):
+    file_hash, file_time = file_hash_and_time(src)
+    BASE = os.path.basename(src)
     try:
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
         dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
@@ -36,9 +39,9 @@ def src_add(cache_file, src, dirs_new=[]):
         src_copy(dirs_new, src)
         messages.src_copy_add_message(dirs_new, BASE)
     
-    #if src doesn't exist in json, add it and its folders
+    #if source doesn't exist in the json, add it and its folders
     except KeyError or TypeError:
-        directories = directoryfilter.dirs_filter(dirs_new)
+        directories = directoryfilter.dirs_filter(dirs_new, None)
         if directories:
             cache_file[src] = {}
 
@@ -51,10 +54,12 @@ def src_add(cache_file, src, dirs_new=[]):
 
     return cache_file
 
+
+#checks the cache file for folders and update them with the newest iteration of the source file
 def src_update(cache_file, src):
-    file_hash, file_time = file_hash_a_time(src)
+    file_hash, file_time = file_hash_and_time(src)
     BASE = os.path.basename(src)
-    #updates the folders
+    
     try:
         dirs_existing = directoryfilter.dirs_filter(list(map(file_dir_name, cache_file[src].keys())), "existing")
 
@@ -69,11 +74,13 @@ def src_update(cache_file, src):
 
     return cache_file
 
+#swaps the source file to whatever is picked
+#fix
 def src_swap(cache_file, src, swap_file):
-    if not is_file_exist_a_accessible(swap_file): messages.source_not_existing_message_and_exit(swap_file)
+    if not is_file_exist_and_accessible(swap_file): messages.source_not_existing_message_and_exit(swap_file)
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
-            file_hash, file_time = file_hash_a_time(src)
+            file_hash, file_time = file_hash_and_time(src)
 
             cache_file.update({swap_file:cache_file[src]})
             cache_file[swap_file].update({src: [file_hash, file_time]})
