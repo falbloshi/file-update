@@ -46,15 +46,16 @@ def source_not_existing_message_and_exit(swap=''):
         exit()
 
 def src_copy_add_message(directories, src_name):
-    if not directories: return
-    if args.verbose:
+    if args.verbose and directories:
             print(f'\nFolders added "{src_name}" successfuly ')
             num = 1
             for item in directories:
                 print(f'{num}) - {os.path.normpath(item)}')
                 num += 1
     elif args.quiet: return
-    else: print(f'File "{src_name}" copied successfuly to new folders')
+    else: 
+        if directories: print(f'File "{src_name}" copied successfuly to new folders')
+        else: print(f"Selected folders cannot be added")
 
 
 def src_copy_message(directories, src_name):

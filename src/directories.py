@@ -25,7 +25,8 @@ def dirs_remove(cache_file, src, directories):
 #prints actual live status of copies, perform no changes, overrides quiet 
 def dirs_status(cache_file, src):
     try:
-        src_copies = cache_file[src].keys()
+        src_copies = list(cache_file[src].keys())
+        
         src_hash, src_build_time = file_hash_and_time(src)
         
         print(f'\nOriginal\'s build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal\'s hash value: {src_hash}', end='\n')
@@ -35,8 +36,9 @@ def dirs_status(cache_file, src):
             if is_file_exist_and_accessible(copy):
                 copy_hash, copy_build_time = file_hash_and_time(copy)
             else:
-                print(f'{copy} file path is inaccessible')
-                pass
+                print(f'\n{count}) {copy} file path is inaccessible - will be deleted from future updates')
+                del cache_file[src][copy]
+                continue
             
             diff_hash = ternary_comparision('Equal hash value', 'Unequal hash value', copy_hash, src_hash)
 
@@ -52,3 +54,4 @@ def dirs_status(cache_file, src):
     except KeyError:
         messages.source_not_existing_message_and_exit()  
     
+    return cache_file

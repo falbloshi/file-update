@@ -23,7 +23,7 @@ if __name__ == "__main__":
         cache_d = sourcefile.src_remove(cache_d, SRC)
     
     if args.status: 
-        directories.dirs_status(cache_d, SRC)
+        cache_d = directories.dirs_status(cache_d, SRC)
 
     cache.src_cache_update(cache_d)
 

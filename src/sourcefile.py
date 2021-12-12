@@ -76,32 +76,37 @@ def src_update(cache_file, src):
 
     return cache_file
 
-#swaps the source file to whatever is picked
+#swaps the source file to whatever is picked, must have the same filename
 def src_swap(cache_file, src, swap_file):
     if not is_file_exist_and_accessible(swap_file): messages.source_not_existing_message_and_exit("s")
+    
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
             file_hash, file_time = file_hash_and_time(src)
-            
             swap_path = os.path.abspath(swap_file)
-            
             success = None
+
             if is_file_exist_and_accessible(swap_path):
                 cache_file.update({swap_path:cache_file[src]})
                 cache_file[swap_path].update({src: [file_hash, file_time]})
-    
+                
+                if cache_file[swap_path][swap_path]: del cache_file[swap_path][swap_path]
+                     
                 del cache_file[src]
+                
                 success = True
+            
             messages.src_swap_success_message(success, src, swap_path)
+            
             return cache_file
+        
         except KeyError:
             messages.source_not_existing_message_and_exit()
-    else:
-        pass
 
 def src_remove(cache_file, src):
     try:
         del cache_file[src]   
+        
         return cache_file
 
     except KeyError:
