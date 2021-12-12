@@ -34,7 +34,7 @@ def src_cache_get():
         with open(src_cache_file, 'x+', encoding='utf-8') as jsonfile:
             json.dump({}, jsonfile, indent = 4)
             
-            return empty
+            return {}
     except json.JSONDecodeError:
         return {}
 
