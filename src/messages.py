@@ -67,6 +67,13 @@ def src_copy_message(directories, src_name):
     elif args.quiet: return
     else: print(f'File "{src_name}" copied successfuly to cached folders')
     
+def src_swap_success_message(success, src, swapfile):
+    if not success: print("Failed to swap")
+    if args.verbose: print(f'Swap successful\n"{swapfile}" - is the new source file')
+    elif args.quiet: return 
+    else: print('Swap successful')
+
+
 def  src_cache_get_message(src_cache_dir):
     if not args.quiet:
         print(f'Cache file did not exist. Creating cache.json in {src_cache_dir}')

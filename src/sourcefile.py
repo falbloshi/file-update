@@ -26,9 +26,9 @@ def src_copy(directories, src):
 
 #adds folders to source path in cache file, copies them if they don't exists
 def src_add(cache_file, src, dirs_new=[]):
-    file_hash, file_time = file_hash_and_time(src)
-    BASE = os.path.basename(src)
     try:
+        file_hash, file_time = file_hash_and_time(src)
+        BASE = os.path.basename(src)
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
         dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
 
@@ -41,7 +41,9 @@ def src_add(cache_file, src, dirs_new=[]):
     
     #if source doesn't exist in the json, add it and its folders
     except KeyError or TypeError:
+        file_hash, file_time = file_hash_and_time(src)
         directories = directoryfilter.dirs_filter(dirs_new, None)
+        
         if directories:
             cache_file[src] = {}
 
@@ -77,16 +79,21 @@ def src_update(cache_file, src):
 #swaps the source file to whatever is picked
 #fix
 def src_swap(cache_file, src, swap_file):
-    if not is_file_exist_and_accessible(swap_file): messages.source_not_existing_message_and_exit(swap_file)
+    if not is_file_exist_and_accessible(swap_file): messages.source_not_existing_message_and_exit("s")
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
             file_hash, file_time = file_hash_and_time(src)
-
-            cache_file.update({swap_file:cache_file[src]})
-            cache_file[swap_file].update({src: [file_hash, file_time]})
-
-            del cache_file[src]
-
+            
+            swap_path = os.path.abspath(swap_file)
+            
+            success = None
+            if is_file_exist_and_accessible(swap_path):
+                cache_file.update({swap_path:cache_file[src]})
+                cache_file[swap_path].update({src: [file_hash, file_time]})
+    
+                del cache_file[src]
+                success = True
+            messages.src_swap_success_message(success, src, swap_path)
             return cache_file
         except KeyError:
             messages.source_not_existing_message_and_exit()

@@ -12,11 +12,11 @@ import messages
 # "another source file location":  {"copy location 1": [hash_value, date_time], "copy location 2": [hash_value, date_time], "copy location 3": [hash_value, date_time]} }
 # here original location 1 has one value, a dictionary, which contains two keys, which are the paths of the copies, and each path has 1 value of list, which contains
 # a hash value of the copy and the last update time in unix epoch of the file - these values are actually copies from the source file, rather.
-# however when checking the '--status' of the source, it will check each copy individually and compare them, this functionslity is in directories.py as dirs_status()
+# however when checking the '--status' of the source, it will check each copy individually and compare them; this functionslity is in directories.py as dirs_status()
 
 
 #gets cache file which stores source file path original location and its copies' locations
-#creates empty if does not exist
+#creates empty if it does not exist or there is nothing inside the file
 def src_cache_get():
     src_cache_dir, src_cache_file = osplatform.cache_dir_and_file_get()
     try:
@@ -36,6 +36,10 @@ def src_cache_get():
             json.dump(empty, jsonfile, indent = 4)
             
             return empty
+    except json.JSONDecodeError:
+        empty = {}
+        
+        return empty
 
 def src_cache_update(cache_file):
     src_cache_file = osplatform.cache_dir_and_file_get()[1]
