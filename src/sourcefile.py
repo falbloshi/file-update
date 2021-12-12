@@ -77,7 +77,6 @@ def src_update(cache_file, src):
     return cache_file
 
 #swaps the source file to whatever is picked
-#fix
 def src_swap(cache_file, src, swap_file):
     if not is_file_exist_and_accessible(swap_file): messages.source_not_existing_message_and_exit("s")
     if os.path.basename(src) == os.path.basename(swap_file):

@@ -32,14 +32,11 @@ def src_cache_get():
             os.makedirs(src_cache_dir, exist_ok=True)
 
         with open(src_cache_file, 'x+', encoding='utf-8') as jsonfile:
-            empty = {}
-            json.dump(empty, jsonfile, indent = 4)
+            json.dump({}, jsonfile, indent = 4)
             
             return empty
     except json.JSONDecodeError:
-        empty = {}
-        
-        return empty
+        return {}
 
 def src_cache_update(cache_file):
     src_cache_file = osplatform.cache_dir_and_file_get()[1]
