@@ -73,8 +73,3 @@ def src_swap_success_message(success, src, swapfile):
     if args.verbose: print(f'Swap successful\n"{swapfile}" - is the new source file')
     elif args.quiet: return 
     else: print('Swap successful')
-
-
-def  src_cache_get_message(src_cache_dir):
-    if not args.quiet:
-        print(f'Cache file did not exist. Creating cache.json in {src_cache_dir}')

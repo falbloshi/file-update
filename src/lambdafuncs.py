@@ -13,4 +13,4 @@ ternary_comparision = lambda message_true, message_false, object_1, object_2: me
 #returns file's hash value and last update time
 def file_hash_and_time(file):
     with open(file, 'rb') as openfile:
-        return sha1(openfile.read()).hexdigest(), os.path.getmtime(file)
+        return sha1(openfile.read()).hexdigest(), os.path.getmtime(file), file

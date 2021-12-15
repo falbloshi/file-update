@@ -1,7 +1,6 @@
 import os
 import json
 import osplatform
-import messages
 
 # the src cache file contains key of the source file path
 # and each source file path has keys of the copies path
@@ -26,7 +25,7 @@ def src_cache_get():
             return cache_d
           
     except FileNotFoundError:
-        messages.src_cache_get_message(src_cache_dir)
+        print(f'Cache file did not exist. Creating cache.json in {src_cache_dir}')
 
         if not os.path.isfile(src_cache_file):
             os.makedirs(src_cache_dir, exist_ok=True)
