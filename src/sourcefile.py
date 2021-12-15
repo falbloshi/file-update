@@ -28,7 +28,7 @@ def src_copy(directories, src):
 #adds folders to source path in cache file, copies them if they don't exists
 def src_add(cache_file, src, dirs_new=[]):
     try:
-        file_hash, file_time, path = file_hash_and_time(src)
+        file_hash, file_time = file_hash_and_time(src)[:2]
         BASE = os.path.basename(src)
         dirs_existing = list(map(file_dir_name, cache_file[src].keys()))
         dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
@@ -42,7 +42,7 @@ def src_add(cache_file, src, dirs_new=[]):
     
     #if source doesn't exist in the json, add it and its folders
     except KeyError or TypeError:
-        file_hash, file_time, path = file_hash_and_time(src)
+        file_hash, file_time = file_hash_and_time(src)[:2]
         directories = directoryfilter.dirs_filter(dirs_new, None)
         
         if directories:
@@ -60,7 +60,7 @@ def src_add(cache_file, src, dirs_new=[]):
 
 #checks the cache file for folders and update them with the newest iteration of the source file
 def src_update(cache_file, src):
-    file_hash, file_time, path = file_hash_and_time(src)
+    file_hash, file_time = file_hash_and_time(src)[:2]
     BASE = os.path.basename(src)
     
     try:
@@ -83,7 +83,7 @@ def src_swap(cache_file, src, swap_file):
     
     if os.path.basename(src) == os.path.basename(swap_file):
         try: 
-            file_hash, file_time, path = file_hash_and_time(src)
+            file_hash, file_time = file_hash_and_time(src)[:2]
             swap_path = os.path.abspath(swap_file)
             success = None
 

@@ -40,13 +40,10 @@ def dirs_status(cache_file, src):
         for hash_and_build in results:
             count += 1
             copy_hash, copy_build_time, path = hash_and_build
-            
             diff_hash = ternary_comparision('Equal hash value', 'Unequal hash value', copy_hash, src_hash)
-
             t_delta = time_elapsed(dt.fromtimestamp(src_build_time) - dt.fromtimestamp(copy_build_time))
             verdict =  ternary_comparision('Update not needed', 'Update recommended', 'Equal hash value', diff_hash)
 
-            
             print(f'\n{count}) {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
                     \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
                     \n{verdict} for the copy in {file_dir_name(path)}', end='\n')    
