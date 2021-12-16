@@ -1,9 +1,8 @@
-import concurrent.futures
 import messages
 from directoryfilter import dirs_filter
 from lambdafuncs import *
 from datetime import datetime as dt
-
+from concurrent.futures import ThreadPoolExecutor
 
 #removes directories in the cache file, does not remove actual copies
 def dirs_remove(cache_file, src, directories):    
@@ -26,15 +25,37 @@ def dirs_remove(cache_file, src, directories):
 #prints actual live status of copies, perform no changes, overrides quiet 
 def dirs_status(cache_file, src):
     try:
-        src_copies = list(cache_file[src].keys())
+        src_copies = list(set(cache_file[src].keys()))
         
         src_hash, src_build_time, path = file_hash_and_time(src)
         
         print(f'\nOriginal\'s build time: {dt.ctime(dt.fromtimestamp(src_build_time))}\nOriginal\'s hash value: {src_hash}', end='\n')
         
-        with concurrent.futures.ThreadPoolExecutor() as exc:
-            results = exc.map(file_hash_and_time, (copy for copy in src_copies if is_file_exist_and_accessible(copy)))
+        from osplatform import windows_drive_letter_resolve as wdlr, IS_WINDOWS
         
+        count = 0
+        for copy in src_copies.copy():
+            if is_file_exist_and_accessible(copy): continue
+            else:
+                if IS_WINDOWS:
+                    for path in wdlr(copy):
+                        if is_file_exist_and_accessible(path):
+                            src_copies.insert(path, src_copies.index(copy))
+                            src_copies.remove(copy)
+                            cache_file[src].update({path: cache_file[src][copy]})
+                            
+                            print(f'for "{copy}"\t drive letter resolved to {path[:1]}')
+                            
+                            break
+                
+                count += 1
+                print(f'\n{count}) {copy.center(80, "*")}\n' + 'folder does not exists or inaccessible, will be removed from future updates'.center(80, "8"))
+                src_copies.remove(copy)
+                
+                del cache_file[src][copy]
+
+            
+        results = ThreadPoolExecutor().map(file_hash_and_time, src_copies)
         count = 0
 
         for hash_and_build in results:
@@ -47,19 +68,6 @@ def dirs_status(cache_file, src):
             print(f'\n{count}) {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
                     \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
                     \n{verdict} for the copy in {file_dir_name(path)}', end='\n')    
-
-        #fix - need to remove unwanted
-
-        # for copy in src_copies:
-        #     count += 1
-        #     if is_file_exist_and_accessible(copy):
-        #         copy_hash, copy_build_time, seed = file_hash_and_time(copy)
-        #     else:
-        #         print(f'\n{count}) {copy} file path is inaccessible - will be deleted from future updates')
-        #         del cache_file[src][copy]
-        #         continue
-            
-
         
     except KeyError:
         messages.source_not_existing_message_and_exit()  

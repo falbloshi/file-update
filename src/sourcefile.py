@@ -3,7 +3,7 @@ import shutil
 import directoryfilter
 import messages
 from lambdafuncs import *
-import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 #sanity check for source file
 def src_get(src):
@@ -19,12 +19,9 @@ def src_get(src):
 #copies the source in the specified directories, either in added or stored in cache file
 def src_copy(directories, src):
     if not messages.args.simulate:
-        with concurrent.futures.ThreadPoolExecutor() as exc:
-            copy_full = lambda directory: shutil.copy2(src, os.path.normpath(directory))
-            exc.map(copy_full, directories) 
-    return
-
-
+        copy_full = lambda directory: shutil.copy2(src, os.path.normpath(directory))
+        ThreadPoolExecutor().map(copy_full, directories) 
+        
 #adds folders to source path in cache file, copies them if they don't exists
 def src_add(cache_file, src, dirs_new=[]):
     try:
