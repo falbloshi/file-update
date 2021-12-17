@@ -94,7 +94,7 @@ def src_swap(cache_file, src, swap_file):
                 
                 success = True
             
-            messages.src_swap_success_message(success, src, swap_path)
+            messages.src_swap_success_message(success, swap_path)
             
             return cache_file
         
