@@ -49,7 +49,7 @@ def dirs_status(cache_file, src):
                             break
                 
                 count += 1
-                print(f'\n{count}) {copy.center(80, "*")}\n' + 'folder does not exists or inaccessible, will be removed from future updates'.center(80, "8"))
+                print(f'\n{count}) {copy.center(80, "*")}\n' + 'folder does not exists or inaccessible, will be removed from future updates'.center(80, "*"))
                 src_copies.remove(copy)
                 
                 del cache_file[src][copy]
