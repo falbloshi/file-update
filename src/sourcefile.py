@@ -19,8 +19,7 @@ def src_get(src):
 #copies the source in the specified directories, either in added or stored in cache file
 def src_copy(directories, src):
     if not messages.args.simulate:
-        copy_full = lambda directory: shutil.copy2(src, os.path.normpath(directory))
-        ThreadPoolExecutor().map(copy_full, directories) 
+        ThreadPoolExecutor().map(lambda directory: shutil.copy2(src, os.path.normpath(directory)), directories) 
         
 #adds folders to source path in cache file, copies them if they don't exists
 def src_add(cache_file, src, dirs_new=[]):
