@@ -1,4 +1,7 @@
 *test*
 *.pyc
+*egg*
 __pycache__
-progress.py
+virt
+venv
+build/
