@@ -3,11 +3,10 @@ from setuptools import setup, find_packages
 setup(
     name = 'file-update',
     version = '1.0',
-    description = 'Updates multiple copies of a file\
-        residing in different directories',
+    description = 'Updates multiple copies of a file residing in different directories',
     author = 'Faris Al-Bloshi',
     author_email = 'faris_ddx@hotmail.com',
-    url = 'https://github.com/falblocatshi/file-update',
+    url = 'https://github.com/falbloshi/file-update',
     packages=find_packages
     (
         where = "src",
