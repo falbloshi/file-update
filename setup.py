@@ -23,5 +23,6 @@ setup(
             'fud = file_update.__main__:start'
         ],
     },
-    python_requires='>=3.6',    
+    python_requires='>=3.6',
+        
 )

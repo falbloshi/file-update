@@ -9,6 +9,7 @@ def cache_dir_and_file_get():
     #stackoverflow.com/a/35249327, if you don't copy from sof, what use of you?
         src_cache_dir = os.path.expanduser("~") + "/.config/file-update" 
         src_cache_file = src_cache_dir + "/cache.json"
+    
     else: 
         src_cache_dir = "C:\\ProgramData\\file-update"
         src_cache_file = src_cache_dir + "\\cache.json"

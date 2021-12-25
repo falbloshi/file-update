@@ -142,6 +142,11 @@ def src_swap(cache_file, src, swap_file):
             messages.src_not_existing_message_and_exit()
 
 def src_remove(cache_file, src):
+    """
+    Removes the source file and its related copies 
+    destination from cache, does not deletes 
+    the actual file or its copies
+    """
     try:
         del cache_file[src]   
         

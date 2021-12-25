@@ -19,7 +19,7 @@ def dirs_filter(directories, message="added"):
 
 def dirs_existing_filter(existing_directories, new_directories=[]):
     """
-    Filters command line argument entries, 
+    Filters cli argument entries, 
     extracts newly added folders exclusively
     """
     new_directories = dirs_filter(new_directories, None)
