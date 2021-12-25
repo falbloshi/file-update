@@ -18,7 +18,7 @@ License: MIT ''')
 
 parser.add_argument('source', type=str, metavar='SRC',
                     help='SRC, the origin source file to be copied. If not exising in cache.json\
-                    will create a new one')
+                    will create a new entry')
 
 parser.add_argument('-a', '--add', metavar='DIRS', action='extend', type=str, nargs='+', default=[],
                     help='adds directories to copy a SRC file to')
