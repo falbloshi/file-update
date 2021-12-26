@@ -12,7 +12,7 @@ and for Windows systems in C:\\ProgramData\\file-update
 The source file resides in www.github.com/falbloushi/file-update
 
 Author: Faris Al-Bloshi 2021
-Version: 1.0
+Version: 1.0b0
 License: MIT ''')
             )
 
@@ -20,7 +20,7 @@ parser.add_argument('source', type=str, metavar='SRC',
                     help='SRC, the origin source file to be copied. If not exising in cache.json\
                     will create a new entry')
 
-parser.add_argument('-a', '--add', metavar='DIRS', action='extend', type=str, nargs='+', default=[],
+parser.add_argument('-a', '--add', metavar='DIRS', action='extend', type=str, nargs='+', default=None,
                     help='adds directories to copy a SRC file to')
 
 parser.add_argument('-u', '--update', action='store_true',
@@ -49,7 +49,7 @@ parser.add_argument('-d', '--delete', action='store_true',
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='display more information in output; overrides -q flag')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s 1.0b0')
 
 
 args = parser.parse_args()

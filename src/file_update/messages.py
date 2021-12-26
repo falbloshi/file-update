@@ -7,11 +7,10 @@ def dirs_filter_message(directories, filtered_directories, message):
         return
     
     if args.verbose:
-        num = 1
-        
+
         if message: print(f"\nChecking {message}:")
         
-        for dirs in lambdas.list_item_common_remove(set(directories), set(filtered_directories)):
+        for num, dirs in enumerate(lambdas.list_item_common_remove(set(directories), set(filtered_directories)), 1):
             if lambdas.is_same_dirs_as_src(dirs, args.source): 
                 print(f'{num}) - \'{dirs}\' removed - no action to the same directory as the source file')
             
@@ -23,9 +22,7 @@ def dirs_filter_message(directories, filtered_directories, message):
             
             else: 
                 print(f'{num}) - \'{dirs}\' removed - not a directory')
-            
-            num += 1
-    
+
     elif args.quiet: 
         return
     
@@ -72,13 +69,9 @@ def src_not_existing_message_and_exit(swap=''):
 def src_copy_add_message(directories, src_name):
     if args.verbose and directories:
             print(f'\nFolders added "{src_name}" successfuly ')
-            
-            num = 1
-            
-            for item in directories:
+                       
+            for num, item in enumerate(directories, 1):
                 print(f'{num}) - {os.path.normpath(item)}')
-                
-                num += 1
 
     elif args.quiet: 
         return
@@ -96,14 +89,10 @@ def src_copy_message(directories, src_name):
             
             print(f'\nCopying "{src_name}" in ')
             
-            num = 1
-            
-            for item in directories:
+            for num, item in enumerate(directories, 1):
             
                 print(f'{num}) - {os.path.normpath(item)}')
-            
-                num += 1
-    
+
     elif args.quiet: 
         return
     

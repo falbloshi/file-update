@@ -28,19 +28,19 @@ def src_get(src):
 def src_copy(directories, src):
     """
     Copies the source in the directories specified in 
-    either --add flag or stored in the cache file
+    either --add or -a flag or stored in the cache file
     """
-    if not SIM:
+    if not SIM and directories:
         ThreadPoolExecutor().map(lambda directory: shutil.copy2(src, os.path.normpath(directory)), directories) 
         
 
-def src_add(cache_file, src, dirs_new=[]):
+def src_add(cache_file, src, dirs_new=None):
     """
     Adds folders to source path in cache file, 
     copies them if they don't exists
     
     If source doesn't exist in the json, add it 
-    and its folders mentioned in --add flag
+    and the folders mentioned in --add or -a flag
     """
     try:
         file_hash, file_time = hashfile.file_hash_and_time(src)[:2]

@@ -7,6 +7,7 @@ from datetime import datetime as dt
 from concurrent.futures import ThreadPoolExecutor
 import os.path
 
+verbose = messages.args.verbose
 
 def dirs_remove(cache_file, src, directories):
     """
@@ -89,7 +90,10 @@ def dirs_status(cache_file, src):
             
             verdict =  lambdas.ternary_comparision('Update not needed', 'Update recommended', 'Equal hash value', diff_hash)
 
-            print(f'\n{count}) {copy_hash[:5]}..{copy_hash[-5:]} {diff_hash}\
+            if not verbose:
+                copy_hash = f'{copy_hash[:5]}..{copy_hash[-5:]}'
+
+            print(f'\n{count}) {copy_hash} {diff_hash}\
                     \n{dt.ctime(dt.fromtimestamp(copy_build_time))} - {str(t_delta)} time elapsed from last update \
                     \n{verdict} for the copy in {lambdas.file_dir_name(path)}', end='\n')    
         
