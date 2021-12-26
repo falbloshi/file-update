@@ -4,14 +4,14 @@ import os.path
 
 def dirs_filter(directories, message="added"):
     """
-    Filters cli argument entries or cache files, 
+    Filters cli argument entries or cache file entries, 
     checks if they exist and accessible and if they are not 
     the same directory as the source
     """
     filtered_directories = list(set([dirs for dirs in directories 
                                     if lambdas.is_dir_exist_and_accessible(dirs)
-                                    and not lambdas.is_same_dirs_as_src(dirs, messages.args.source)]))
-    
+                                    and not lambdas.is_same_dirs_as_src(dirs, messages.args.source)]))   
+
     messages.dirs_filter_message(directories, filtered_directories, message)
 
     return list(map(os.path.abspath, filtered_directories))

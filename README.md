@@ -44,7 +44,7 @@ As an example, we have a file structure that looks like this:
 To add _myfile.txt_ and copy it to any destination(s)(-v is the --verbose command, shows more information):  
 `fud myfile.txt -a aunt/ parent/child parent/ uncle/cousin1 -v`   
 If cache.json did not exist, it will be created at  
-`/HOME/USER/.config/file-update/cache.json`  
+`/HOME/USER/.cache/file-update/cache.json`  
 And for windows in  
 `C:\ProgramData\file-update\cache.json`  
 Now, our current file structure will look like this:

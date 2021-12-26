@@ -1,11 +1,8 @@
-from .commandparse import args, parser
+from .commandparse import args
 from . import lambdas
 import os.path
 
 def dirs_filter_message(directories, filtered_directories, message):
-    if not filtered_directories: 
-        return
-    
     if args.verbose:
 
         if message: print(f"\nChecking {message}:")
@@ -61,8 +58,6 @@ def src_not_existing_message_and_exit(swap=''):
         file_type = 'source' if not swap else 'swap'
         
         print(f'\n---> Specified {file_type} file does not exist\n')
-        
-        parser.print_help()
         
         exit()
 

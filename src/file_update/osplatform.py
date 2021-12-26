@@ -7,7 +7,7 @@ def cache_dir_and_file_get():
 
     if not IS_WINDOWS:
     #stackoverflow.com/a/35249327, if you don't copy from sof, what use of you?
-        src_cache_dir = os.path.expanduser("~") + "/.config/file-update" 
+        src_cache_dir = os.path.expanduser("~") + "/.cache/file-update" 
         src_cache_file = src_cache_dir + "/cache.json"
     
     else: 
