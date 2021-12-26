@@ -18,7 +18,7 @@ def dirs_remove(cache_file, src, directories):
     try:
         directories = dirs_filter(directories, None)
         
-        dirs_existing = list(map(lambdas.file_dir_name, cache_file[src].keys()))
+        dirs_existing = list(map(lambdas.file_dir_name, cache_file[src]))
         
         dirs_to_remove = list(set(directories).intersection(set(dirs_existing)))
         
@@ -42,7 +42,7 @@ def dirs_status(cache_file, src):
     """
 
     try:
-        src_copies = list(set(cache_file[src].keys()))
+        src_copies = list(set(cache_file[src]))
         
         src_hash, src_build_time, path = hashfile.file_hash_and_time(src)
         

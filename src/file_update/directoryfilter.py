@@ -17,7 +17,7 @@ def dirs_filter(directories, message="added"):
     return list(map(os.path.abspath, filtered_directories))
 
 
-def dirs_existing_filter(existing_directories, new_directories=None):
+def dirs_existing_filter(existing_directories, new_directories):
     """
     Filters cli argument entries, 
     extracts newly added folders exclusively

@@ -11,7 +11,7 @@ SIM = messages.args.simulate
 
 def src_get(src):
     """
-    sanity check for source file
+    Sanity check for source file
     """
     if os.path.isfile(src): 
         src_full_path = os.path.realpath(src)
@@ -47,7 +47,7 @@ def src_add(cache_file, src, dirs_new=None):
         
         BASE = os.path.basename(src)
         
-        dirs_existing = list(map(lambdas.file_dir_name, cache_file[src].keys()))
+        dirs_existing = list(map(lambdas.file_dir_name, cache_file[src]))
         
         dirs_new = directoryfilter.dirs_existing_filter(dirs_existing, dirs_new)
 
@@ -91,7 +91,7 @@ def src_update(cache_file, src):
     BASE = os.path.basename(src)
     
     try:
-        dirs_existing = directoryfilter.dirs_filter(list(map(lambdas.file_dir_name, cache_file[src].keys())), "existing")
+        dirs_existing = directoryfilter.dirs_filter(list(map(lambdas.file_dir_name, cache_file[src])), "existing")
 
         for dir_path in dirs_existing:
             updated_file_path = os.path.join(dir_path, BASE)

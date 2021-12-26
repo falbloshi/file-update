@@ -9,8 +9,7 @@ def start():
     SRC = sourcefile.src_get(args.source)[0]
 
     if args.add or args.update:
-        cache_d = sourcefile.src_add(cache_d, SRC, args.add) if args.add \
-                  else sourcefile.src_update(cache_d, SRC)
+        cache_d = sourcefile.src_add(cache_d, SRC, args.add) if args.add else sourcefile.src_update(cache_d, SRC)
     
     elif args.swap: 
         cache_d = sourcefile.src_swap(cache_d, SRC, args.swap)

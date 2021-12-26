@@ -48,7 +48,7 @@ def dirs_remove_message(dirs_to_remove):
     if args.verbose:
         print("\n".join((f"{num}) - '{dirs}' removed from cache" for num, dirs in enumerate(dirs_to_remove, 1))))
     
-    elif args.quiet: 
+    elif args.quiet or not dirs_to_remove: 
         return
     
     else: 
