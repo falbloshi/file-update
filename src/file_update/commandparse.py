@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(
             prog='file-update/fud',
             formatter_class=argparse.RawDescriptionHelpFormatter, epilog=dedent(
             '''cache.json will be stored in /HOME/USER/.cache/file-update
-and for Windows systems in C:\\ProgramData\\file-update
+and for Windows systems in C:\\ProgramData\\File-Update
 
 The source file resides in www.github.com/falbloushi/file-update
 

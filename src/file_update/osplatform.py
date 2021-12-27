@@ -1,3 +1,4 @@
+from . import lambdas
 import os
 import platform
 
@@ -11,17 +12,31 @@ def cache_dir_and_file_get():
         src_cache_file = src_cache_dir + "/cache.json"
     
     else: 
-        src_cache_dir = "C:\\ProgramData\\file-update"
+        src_cache_dir = "C:\\ProgramData\\File-Update"
         src_cache_file = src_cache_dir + "\\cache.json"
     
     return src_cache_dir, src_cache_file
 
 
-def windows_drive_letter_resolve(drive_letter):
-    if not IS_WINDOWS: return
+def windows_drive_letter_iterate(drive_letter):
     
-    a = 66
+    a = 67
     
     while a < 91:
         yield chr(a) + drive_letter[1:]
         a += 1
+
+
+def windows_drive_letter_resolve(copy, cache_file, src, directory):
+    if not IS_WINDOWS: 
+        return ''
+    
+    for path in windows_drive_letter_iterate(copy):
+        if lambdas.is_file_exist_and_accessible(path):
+            directory.insert(directory.index(copy), path)
+                                
+            cache_file[src].update({path: cache_file[src][copy]})
+            
+            return f'For "{copy}" drive letter resolved to "{path[:1]}:\\"'
+    
+    return ''   
