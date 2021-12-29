@@ -42,12 +42,12 @@ def src_cache_get():
             os.makedirs(src_cache_dir, exist_ok=True)
 
         with open(src_cache_file, 'x+', encoding='utf-8') as jsonfile:
-            json.dump({}, jsonfile, indent = 4)
+            json.dump(dict(), jsonfile, indent = 4)
             
-            return {}
+            return dict()
             
     except json.JSONDecodeError:
-        return {}
+        return dict()
 
 def src_cache_update(cache_file):
     """

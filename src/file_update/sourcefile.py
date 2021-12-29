@@ -102,6 +102,7 @@ def src_swap(cache_file, src, swap_file):
     Swaps the source file to whatever is in --swap flag, 
     it must have the same file name as source
     """
+    
     if not lambdas.is_file_exist_and_accessible(swap_file): 
         messages.src_not_existing_message_and_exit("s")
     
@@ -111,28 +112,37 @@ def src_swap(cache_file, src, swap_file):
             swap_path = os.path.abspath(swap_file)
             success = None
 
-            if lambdas.is_file_exist_and_accessible(swap_path):
-                cache_file.update({swap_path:cache_file[src]})
-                cache_file[swap_path].update({src: [file_hash, file_time]})
-                
-                if cache_file[swap_path][swap_path]: 
-                    del cache_file[swap_path][swap_path]
-                
-                del cache_file[src]
-                success = True
+            if not SIM:
+                if lambdas.is_file_exist_and_accessible(swap_path):
+                    cache_file.update({swap_path:cache_file[src]})
+                    cache_file[swap_path].update({src: [file_hash, file_time]})
+                    
+                    if cache_file[swap_path][swap_path]: 
+                        del cache_file[swap_path][swap_path]
+                    
+                    del cache_file[src]
+                    success = True
+            else: success = True
+            
             messages.src_swap_success_message(success, swap_path)
             return cache_file
         except KeyError:
             messages.src_not_existing_message_and_exit()
 
-def src_remove(cache_file, src):
+def src_delete(cache_file, src):
     """
     Removes the source file and its related copies 
     destination from cache, does not deletes 
     the actual file or its copies
     """
+
+    
+    if SIM:
+        messages.src_delete_message(os.path.basename(src))
+        return cache_file
     try:
-        del cache_file[src]   
+        del cache_file[src]
+        messages.src_delete_message(os.path.basename(src))
         return cache_file
     except KeyError:
         messages.src_not_existing_message_and_exit()

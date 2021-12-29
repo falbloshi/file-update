@@ -58,8 +58,10 @@ exists in cache')
 
 def dirs_remove_message(dirs_to_remove):
 
-    if args.quiet or not dirs_to_remove: 
+    if args.quiet: 
         return None
+    elif not dirs_to_remove:
+        print("No directories to remove")
     elif args.verbose:
         print("\n".join((f"{num}) - '{dirs}' removed from cache file" 
                         for num, dirs in enumerate(dirs_to_remove, 1))))
@@ -72,8 +74,9 @@ def src_not_existing_message_and_exit(swap=''):
     
     if args.quiet: exit()
     else: 
-        file_type = 'source' if not swap else 'swap'
-        print(f'\n---> Specified {file_type} file does not exist\n')
+        file_type = 'source (SRC)' if not swap else 'swap (SWP)'
+        print(f'\033[91m>>><<< Err Specified {file_type} \
+file does not exist\033[00m')
         exit()
 
 
@@ -115,3 +118,14 @@ def src_swap_success_message(success, swapfile):
         return None
     else:
         print('Swap successful')
+
+def src_delete_message(src):
+    if args.verbose:
+        print(f'{src} have been removed from the cache file. \
+you can no longer update {src}. Add again with a copy folder to\
+use again')
+    elif args.quiet:
+        return None
+    else: 
+        print(f'{src} removed from cache. no longer updatable')
+

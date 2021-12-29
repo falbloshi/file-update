@@ -60,8 +60,8 @@ inaccessible, will be removed from future updates. {resolve}')
             copy_hash, copy_build_time, path = hash_and_build
             diff_hash = lambdas.ternary_comparision(
                 'Equal hash value', 'Unequal hash value', copy_hash, src_hash)
-            t_delta = lambdas.time_elapsed(dt.today() -
-                dt.fromtimestamp(src_build_time))
+            t_delta = lambdas.time_elapsed(dt.today() 
+                      - dt.fromtimestamp(copy_build_time))
             verdict =  lambdas.ternary_comparision(
                 'Update not needed', 'Update recommended', 
                 'Equal hash value', diff_hash)

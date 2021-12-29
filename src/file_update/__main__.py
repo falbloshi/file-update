@@ -16,7 +16,7 @@ def start():
     elif args.remove_dir: 
         cache_d = directories.dirs_remove(cache_d, SRC, args.remove_dir)
     elif args.delete:
-        cache_d = sourcefile.src_remove(cache_d, SRC)
+        cache_d = sourcefile.src_delete(cache_d, SRC)
     
     if args.status: 
         cache_d = directories.dirs_status(cache_d, SRC)
