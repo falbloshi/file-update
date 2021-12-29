@@ -21,7 +21,7 @@ def dirs_existing_filter(existing_directories, new_directories):
     Filters cli argument entries, 
     extracts newly added folders exclusively
     """
-    new_directories = dirs_filter(new_directories, None)
+    new_directories = dirs_filter(new_directories)
     messages.dirs_new_filter_message(existing_directories, new_directories)
     filtered_new_directories = [dirs for dirs in new_directories 
                                 if dirs not in existing_directories]
