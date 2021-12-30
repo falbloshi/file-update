@@ -5,19 +5,32 @@ Copy a file to a number of assigned destinations, and copies the latest version 
 Description
 ---
 `file-update`, which can also be shortened to `fud` in the cli, is a program that copies a file to a number of assigned directories. The main file to be copied is also called source file, abbreviated as **SRC** or origin file. While directories where the SRC to be copied are called **DST** or **DIRS**.  
+
 The purpose behind this program is that we wanted to save backups of password banks accross our storage devices and update them whenever the main bank is updated.  
 
 Requirements
 ---
 1. Git
 2. Python >= 3.6
+
 Installation
 ---
-Currently, the program isn't uploaded to PyPI until it reaches certain maturity, however you can download it from github using `git` and use `pip` to install it directly. No elevated privileges required. Change python3.6 based on your own installed version.  
+Currently, the program isn't uploaded to PyPI until it reaches certain maturity, however you can download it from github using `git` and use `pip` to install it directly from source, or download the .whl package or the tar.gz archive from the sidebar. No elevated privileges required. Change python3.6 based on your own installed version.  
+
+From github source
 ```
 git clone www.github.com/falbloshi/file-update.git
 cd file-update
 python3.6 -m pip install .
+```  
+
+Either from .whl 
+```
+pip install file_update-1.***-py3-none-any.whl
+```
+or tar.gz
+```
+pip install file_update-1.***.tar.gz
 ```  
 This will install it in the `~/.local/python3.6/site-packages` of your user level python folder.  
 
@@ -25,7 +38,7 @@ Uninstallation
 ---
 `python3.6 -m pip uninstall file-update`  
 Or delete it manually from  
-`~/.local/python3.6/site-packages/file-update` for *Nix  
+`~/.local/python3.6/site-packages/file-update` for Linux
 `C:\Users\User\AppData\Local\Programs\Python\Python36-32\Lib\site-packages\file-update` for Windows 7 and up.  
 
 Usage

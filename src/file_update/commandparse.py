@@ -1,21 +1,26 @@
 import argparse
 from textwrap import dedent
 
+
+VERSION = '1.0b1'
+
 parser = argparse.ArgumentParser(
             description = 
             'Updates multiple copies of a file(SRC) residing in different \
                 directories(DIRS)', 
-            prog='file-update/fud',
+            prog='file-update',
             formatter_class=argparse.RawDescriptionHelpFormatter, epilog=dedent(
-            '''cache.json will be stored in /HOME/USER/.cache/file-update
+f'''
+cache.json will be stored in /HOME/USER/.cache/file-update
 and for Windows systems in C:\\ProgramData\\File-Update
 
 The source file resides in www.github.com/falbloushi/file-update
 
 Author: Faris Al-Bloshi 2021
-Version: 1.0b0
-License: MIT ''')
-            )
+Version: {VERSION}
+License: MIT 
+''')
+)
 
 parser.add_argument('source', type=str, metavar='SRC',
                     help='SRC, the origin source file to be copied. If not \
@@ -57,7 +62,7 @@ parser.add_argument('-v', '--verbose', action='store_true',
                     help='display more information in output; overrides -q \
                     flag')
 
-parser.add_argument('--version', action='version', version='%(prog)s 1.0b0')
+parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
 
 args = parser.parse_args()
