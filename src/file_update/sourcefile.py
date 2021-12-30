@@ -117,7 +117,7 @@ def src_swap(cache_file, src, swap_file):
                     cache_file.update({swap_path:cache_file[src]})
                     cache_file[swap_path].update({src: [file_hash, file_time]})
                     
-                    if cache_file[swap_path][swap_path]: 
+                    if cache_file.get(swap_path).get(swap_path): 
                         del cache_file[swap_path][swap_path]
                     
                     del cache_file[src]
@@ -136,7 +136,6 @@ def src_delete(cache_file, src):
     the actual file or its copies
     """
 
-    
     if SIM:
         messages.src_delete_message(os.path.basename(src))
         return cache_file

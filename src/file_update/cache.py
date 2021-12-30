@@ -45,7 +45,6 @@ def src_cache_get():
             json.dump(dict(), jsonfile, indent = 4)
             
             return dict()
-            
     except json.JSONDecodeError:
         return dict()
 

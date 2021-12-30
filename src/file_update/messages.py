@@ -2,18 +2,18 @@ from .commandparse import args
 from . import lambdas
 import os.path
 
-num_filter = 0
+num_global = 0
 
 
 def dirs_filter_message(directories, filtered_directories, message):
 
-    global num_filter
+    global num_global
     
     removed = lambdas.list_item_common_remove(
         set(directories), set(filtered_directories))
     
     if args.verbose:
-        if message and removed: print(f"Verifying {message}:")
+        if message and removed: print(f'Verifying {message}:')
         
         for num, dirs in enumerate(removed, 1):
             if lambdas.is_same_dirs_as_src(dirs, args.source): 
@@ -27,7 +27,7 @@ mount or user access')
 mount or invalid directory')
             else: 
                 print(f'{num}) - \'{dirs}\' removed - not a directory')
-            num_filter = num
+            num_global = num
     elif args.quiet: 
         return None
     else:  
@@ -45,7 +45,7 @@ def dirs_new_filter_message(existing_directories, filtered_new_directories):
     
     if args.verbose:
         ms = 'removed - already exists in cache'
-        print('\n'.join((f'{num + num_filter}) - \'{dirs}\' {ms}'
+        print('\n'.join((f'{num + num_global}) - \'{dirs}\' {ms}'
                         for num, dirs in enumerate(ints, 1))))
     elif args.quiet: 
         return None
@@ -61,9 +61,10 @@ def dirs_remove_message(dirs_to_remove):
     if args.quiet: 
         return None
     elif not dirs_to_remove:
-        print("No directories to remove")
+        print('No directories to remove')
     elif args.verbose:
-        print("\n".join((f"{num}) - '{dirs}' removed from cache file" 
+        ms = 'removed from cache file'
+        print('\n'.join((f'{num + num_global}) - "{dirs}" - {ms}' 
                         for num, dirs in enumerate(dirs_to_remove, 1))))
     else: 
         print(f'Director{"y" if len(dirs_to_remove) == 1 else "ies"} \
@@ -72,12 +73,10 @@ removed from future updates')
 
 def src_not_existing_message_and_exit(swap=''):
     
-    if args.quiet: exit()
-    else: 
-        file_type = 'source (SRC)' if not swap else 'swap (SWP)'
-        print(f'\033[91m>>><<< Err Specified {file_type} \
+    file_type = 'source (SRC)' if not swap else 'swap (SWP)'
+    print(f'\033[91m>>><<< Err Specified {file_type} \
 file does not exist\033[00m')
-        exit()
+    exit()
 
 
 def src_copy_add_message(directories, src_name):
@@ -96,7 +95,7 @@ def src_copy_add_message(directories, src_name):
 def src_copy_message(directories, src_name):
     
     if args.verbose:
-            print(f'\nCopying "{src_name}" in ')
+            print(f'Copying "{src_name}" in ')
             
             for num, item in enumerate(directories, 1):
                 print(f'{num}) - {os.path.normpath(item)}')
@@ -109,7 +108,7 @@ def src_copy_message(directories, src_name):
 def src_swap_success_message(success, swapfile):
 
     if not success: 
-        print("Failed to swap")
+        print('Failed to swap')
         return None
 
     if args.verbose: 
