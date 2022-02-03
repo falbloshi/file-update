@@ -10,10 +10,11 @@ import shutil
 SIM = messages.args.simulate
 
 
-def src_get(src):
+def src_get(cache_file, src):
     """
     Sanity check for source file
     """
+    
     if os.path.isfile(src): 
         src_full_path = os.path.realpath(src)
         src_base_name = os.path.basename(src)

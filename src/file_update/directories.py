@@ -84,18 +84,21 @@ def dirs_delete_missing_prompt(src, count, dirs_copies, copy,
     if user accepts to remove
     otherwise they stay in cache
     """
-    print(
-f"""
-\n{count}) "{copy}" folder does not exists or 
-inaccessible. {resolve} 
-\nNote, if you don't remove the file path now, other functions will still 
-consider this path an existing path in cache. Would you like to remove the path 
-from future updates? [y / n(default)]:  
-""")
+    print(f'\n{count}) "{copy}" folder does not exists or \
+            inaccessible. {resolve}')
 
-    dirs_copies.remove(copy)
-    if str.lower(input("> ")) == 'y':
+    if not resolve:
+        print(f'\nNote, if you don\'t remove the file path now, \
+                other operations will still consider this path an existing path\
+                in cache. Would you like to remove the path \
+                from future updates? [y/n (default)]:')
+
+        if str.lower(input("> ")) == 'y':
+            del cache_file[src][copy]
+    else: 
         del cache_file[src][copy]
+    
+    dirs_copies.remove(copy)
     return dirs_copies
     
 

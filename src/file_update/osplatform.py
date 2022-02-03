@@ -30,7 +30,6 @@ def windows_drive_letter_resolve(copy, cache_file, src, directory):
     """
     if not IS_WINDOWS: 
         return ''
-        
     for path in windows_drive_letter_iterate(copy):
         if lambdas.is_file_exist_and_accessible(path):
             directory.insert(directory.index(copy), path)             
