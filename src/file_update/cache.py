@@ -18,7 +18,7 @@ import json
 # value of the copy and the last update time in unix epoch of the file - these 
 # values are actually copies from the source file, rather.# however when 
 # checking the '--status' of the source, it will check each copy individually 
-# and compare them; this functionslity is in directories.py as dirs_status()
+# and compare them; this functionality is in directories.py as dirs_status()
 
 def src_cache_get():
     """
@@ -57,3 +57,7 @@ def src_cache_update(cache_file):
 
     with open(src_cache_file, 'w', encoding='utf-8') as jsonfile:
             json.dump(cache_file, jsonfile, indent = 4)
+
+
+
+

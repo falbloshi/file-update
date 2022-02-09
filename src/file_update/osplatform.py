@@ -1,15 +1,21 @@
 from . import lambdas
+from .commandparse import args
 import os
 import platform
 
 IS_WINDOWS = True if platform.system() == "Windows" else False
 
 
+
 def cache_dir_and_file_get():
     if not IS_WINDOWS:
+        if args.test:
+            src_cache_dir = os.path.abspath(os.path.curdir) + "/.cache/file-update" 
+            src_cache_file = src_cache_dir + "/cache.json"
+        else:
     #stackoverflow.com/a/35249327, if you don't copy from sof, what use of you?
-        src_cache_dir = os.path.expanduser("~") + "/.cache/file-update" 
-        src_cache_file = src_cache_dir + "/cache.json"
+            src_cache_dir = os.path.expanduser("~") + "/.cache/file-update" 
+            src_cache_file = src_cache_dir + "/cache.json"
     else: 
         src_cache_dir = "C:\\ProgramData\\File-Update"
         src_cache_file = src_cache_dir + "\\cache.json"

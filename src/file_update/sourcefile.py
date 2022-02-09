@@ -1,4 +1,3 @@
-
 from . import directoryfilter
 from . import messages
 from . import lambdas
@@ -9,12 +8,28 @@ import shutil
 
 SIM = messages.args.simulate
 
+def src_in_cache_exist(cache_file, src):
+    """
+    Reveals a src if only given file 
+    name and not the absolute path
+    if it is existing in cache
+    """
+
+    file_name = [file for file in cache_file if file.endswith(src)]
+
+    if len(file_name) > 1:
+        return messages.src_same_file_name_switcher(file_name)
+    elif len(file_name) == 1:
+        return file_name[0]
+    return src
 
 def src_get(cache_file, src):
     """
     Sanity check for source file
-    """
-    
+    """ 
+
+    src = src_in_cache_exist(cache_file, src)
+
     if os.path.isfile(src): 
         src_full_path = os.path.realpath(src)
         src_base_name = os.path.basename(src)
@@ -146,3 +161,6 @@ def src_delete(cache_file, src):
         return cache_file
     except KeyError:
         messages.src_not_existing_message_and_exit()
+
+
+

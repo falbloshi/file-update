@@ -104,7 +104,6 @@ def src_copy_message(directories, src_name):
     else: 
         print(f'File "{src_name}" copied successfuly to cached folders')
 
-
 def src_swap_success_message(success, swapfile):
 
     if not success: 
@@ -121,10 +120,23 @@ def src_swap_success_message(success, swapfile):
 def src_delete_message(src):
     if args.verbose:
         print(f'{src} have been removed from the cache file. \
-you can no longer update {src}. Add again with a copy folder to\
+You can no longer update {src}. Add again with a folder to copy to\
 use again')
     elif args.quiet:
         return None
     else: 
-        print(f'{src} removed from cache. no longer updatable')
+        print(f'{src} removed from cache. No longer updatable')
 
+def src_same_file_name_switcher(file_list):
+
+    MAX_SIZE = len(file_list)
+
+    print(f'Please select one of the following source files to use\n\
+(1) to ({MAX_SIZE}) or enter any other characters to exit program')
+    print('\n'.join([f'{num} - {src}' for num, src in enumerate(file_list, 1)]))
+
+    try:
+        user_input = int(input("> "))
+        return file_list[user_input - 1] 
+    except:
+        exit()

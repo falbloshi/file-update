@@ -101,4 +101,5 @@ def dirs_delete_missing_prompt(src, count, dirs_copies, copy,
     dirs_copies.remove(copy)
     return dirs_copies
     
-
+def dirs_list(cache_file):
+    print("\n".join(f"{num}. {item}" for num, item in enumerate(cache_file, 1)))

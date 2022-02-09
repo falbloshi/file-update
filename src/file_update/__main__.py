@@ -6,7 +6,7 @@ from .commandparse import args
 def start():
     cache_d = cache.src_cache_get()
     
-    SRC = sourcefile.src_get(args.source)[0]
+    SRC = sourcefile.src_get(cache_d, args.source)[0]
 
     if args.add or args.update:
         cache_d = sourcefile.src_add(cache_d, SRC, args.add) if \
@@ -20,6 +20,8 @@ def start():
     
     if args.status: 
         cache_d = directories.dirs_status(cache_d, SRC)
+    elif args.list:
+        directories.dirs_list(cache_d)
 
     cache.src_cache_update(cache_d)
 
