@@ -10,7 +10,7 @@ import os.path
 
 def dirs_remove(cache_file, src, directories):
     """
-    Removes directories in the cache file, 
+    Removes directories in the cache file,
     does not remove actual copies
     """
     try:
@@ -31,7 +31,7 @@ def dirs_remove(cache_file, src, directories):
 
 def dirs_status(cache_file, src):
     """
-    Prints actual live status of copies, 
+    Prints actual live status of copies,
     perform no changes, overrides quiet
     """
     try:
@@ -49,7 +49,7 @@ value: {src_hash}', end='\n')
                 resolve = windows_drive_letter_resolve(
                     copy, cache_file,
                     src, dirs_copies)
-                dirs_copies = dirs_delete_missing_prompt(src, count, 
+                dirs_copies = dirs_delete_missing_prompt(src, count,
                                 dirs_copies, copy, resolve, cache_file)
 
         results = ThreadPoolExecutor().map(hashfile.file_hash_and_time,
@@ -77,7 +77,7 @@ value: {src_hash}', end='\n')
     return cache_file
 
 
-def dirs_delete_missing_prompt(src, count, dirs_copies, copy, 
+def dirs_delete_missing_prompt(src, count, dirs_copies, copy,
                                 resolve, cache_file):
     """
     Deletes missing file paths from cache
@@ -85,21 +85,21 @@ def dirs_delete_missing_prompt(src, count, dirs_copies, copy,
     otherwise they stay in cache
     """
     print(f'\n{count}) "{copy}" folder does not exists or \
-            inaccessible. {resolve}')
+inaccessible. {resolve}')
 
     if not resolve:
         print(f'\nNote, if you don\'t remove the file path now, \
-                other operations will still consider this path an existing path\
-                in cache. Would you like to remove the path \
-                from future updates? [y/n (default)]:')
+other operations will still consider this path an existing path \
+in cache. Would you like to remove the path \
+from future updates? [y/n (default)]:')
 
         if str.lower(input("> ")) == 'y':
             del cache_file[src][copy]
-    else: 
+    else:
         del cache_file[src][copy]
-    
+
     dirs_copies.remove(copy)
     return dirs_copies
-    
+
 def dirs_list(cache_file):
     print("\n".join(f"{num}. {item}" for num, item in enumerate(cache_file, 1)))
