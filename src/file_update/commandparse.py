@@ -2,7 +2,7 @@ import argparse
 from textwrap import dedent
 
 
-VERSION = '1.1'
+VERSION = '1.2'
 
 parser = argparse.ArgumentParser(
             description = 
